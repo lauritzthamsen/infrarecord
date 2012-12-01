@@ -2,8 +2,21 @@
 require 'erb'
 require 'cgi'
 require 'infrarecord/document_controller'
+require 'net/http'
+
+
+def http_get(url)
+  url = URI.parse(url)
+  req = Net::HTTP::Get.new(url.path)
+  res = Net::HTTP.start(url.host, url.port) {|http|
+    http.request(req)
+  }
+  return res.body
+end
+
 
 module Redcar
+  
   class InfraRecord
     
     def self.menus
@@ -73,7 +86,6 @@ module Redcar
     end
 
     def self.document_cursor_listener
-      puts "DOCUMENT_CUROR"
       @doc = DocumentController.new
     end
         
@@ -85,8 +97,9 @@ module Redcar
         if e.stateMask == Swt::SWT::CTRL
           case e.keyCode
             when 100 # 'd'
-              puts "this could be a do-it"
-              #puts 'doit' + e.widget.selection_line
+              puts "getting stuff from google"
+              # make sure to include trailing / ;)
+              puts http_get('http://google.com/')
           end
         end
       end
