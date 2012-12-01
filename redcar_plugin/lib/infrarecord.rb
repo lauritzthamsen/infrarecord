@@ -20,19 +20,37 @@ module Redcar
     class OpenCommand < Redcar::Command
       
       def execute
-        controller = Controller.new
-        
-        # i'm awefully sorry for this
+        return false if win.focussed_notebook_tab.nil?
+        return false if win.focussed_notebook_tab.document.nil?
+                  
+        current_document = win.focussed_notebook_tab.document
+        @current_line = current_document.cursor_line + 1
+              
+        # create_notebook does not return the new notebook
+        listener = win.add_listener(:new_notebook, &method(:open_infrarecord_in_notebook))
         win.create_notebook
-        win.set_focussed_notebook(win.nonfocussed_notebook)
+        win.remove_listener(listener)
+      end
+      
+      def open_infrarecord_in_notebook(notebook)
+        controller = Controller.new(@current_line)
+        win.set_focussed_notebook(notebook)
         tab = win.new_tab(ConfigTab)
         tab.html_view.controller = controller
         tab.focus
+        
+        # how to close the notebook that present our infrarecord view in a tab??
+        # tab.add_listener(:close, )
       end
+      
     end
     
     class Controller
       include HtmlController
+      
+      def initialize(line_number)
+        @line_number = line_number
+      end
       
       def title
         "InfraRecord"
