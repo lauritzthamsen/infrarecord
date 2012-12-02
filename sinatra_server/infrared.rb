@@ -2,6 +2,7 @@ require 'sinatra'
 require 'json'
 
 require_relative './lib/rails_loader.rb'
+require_relative './lib/parser.rb'
 
 def rails
   @rails ||= RailsLoader.new
@@ -28,4 +29,8 @@ end
 
 post '/' do
   handle_statement(params[:statement])
+end
+
+get '/ast/:statement' do |statement|
+  InfraRecord::Parser.new.parse(statement)
 end
