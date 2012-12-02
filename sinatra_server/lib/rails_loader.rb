@@ -51,17 +51,17 @@ class RailsLoader
     begin
       eval(statement)
     rescue AbortActiveRecordQuery => e
-      p e.message
+      p "INTERCEPTED QUERY: #{e.message}"
       output = e.message
     rescue => e
-      p e.message
+      p "EXCEPTION: #{e.message}"
     end
 
     output
   end
 
   def has_model?(statement)
-    model_names.map { |m| !!(statement.match m) }.any?
+    model_names.map { |m| !!(statement.match /#{m}\./) }.any?
   end
 
   def models

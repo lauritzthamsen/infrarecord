@@ -3,13 +3,16 @@ require 'json'
 
 require_relative './lib/rails_loader.rb'
 
-rails = RailsLoader.new
+def rails
+  @rails ||= RailsLoader.new
+end
+rails
 
 configure do
   disable :protection
 end
 
-get '/:statement' do |statement|
+def handle_statement(statement)
   halt [ 404 ] if /favicon/.match(statement)
 
   if sql = rails.get_sql(statement)
@@ -17,4 +20,12 @@ get '/:statement' do |statement|
   else
     [ 404, {}, { status: 'not-found' }.to_json ]
   end
+end
+
+get '/:statement' do |statement|
+  handle_statement(statement)
+end
+
+post '/' do
+  handle_statement(params[:statement])
 end
