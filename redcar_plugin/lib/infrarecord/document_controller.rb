@@ -28,6 +28,12 @@ module Redcar
         return if line == @current_line
         @current_line = line
         puts "current line is " + @current_line
+        eval_line(@current_line)
+      end
+
+      def eval_line(a_string)
+        res = http_get("http://localhost:4567/#{@current_line}")
+        puts res
       end
 
     end
