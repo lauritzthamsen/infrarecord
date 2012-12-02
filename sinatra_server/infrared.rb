@@ -32,7 +32,12 @@ post '/' do
   handle_statement(params[:statement])
 end
 
+parser = InfraRecord::Parser.new
+
 get '/ast/:statement' do |statement|
-  ast = InfraRecord::Parser.new.parse(statement)
-  [200, {}, Ruby2Ruby.new.process(ast) ]
+  #ast = InfraRecord::Parser.new.parse(statement)
+  #Ruby2Ruby.new.process(ast)
+  #res = parser.find_possible_orm_calls(statement)
+  res = parser.parse(statement).all_child_nodes
+  [200, {}, res.to_json ]
 end
