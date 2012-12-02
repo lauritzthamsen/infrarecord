@@ -22,6 +22,10 @@ def handle_statement(statement)
   end
 end
 
+get '/models' do
+  rails.model_names.to_json
+end
+
 get '/:statement' do |statement|
   handle_statement(statement)
 end
