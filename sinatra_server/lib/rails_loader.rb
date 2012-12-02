@@ -1,11 +1,11 @@
 class RailsLoader
-  RAILS_ROOT = '~/Documents/HPI/ProgMod/rails-example'
+  RAILS_ROOT = '../../rails_example'
 
   #
   # Load Rails app
   #
   print "Loading Rails ..."
-  require File.join(RAILS_ROOT, 'config', 'environment')
+  require_relative File.join(RAILS_ROOT, 'config', 'environment')
   puts " done"
 
   #
