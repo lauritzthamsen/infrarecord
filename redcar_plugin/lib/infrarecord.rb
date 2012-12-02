@@ -1,8 +1,15 @@
 
 require 'erb'
 require 'cgi'
+require 'infrarecord/parser'
+require 'infrarecord/document_controller'
+require 'net/http'
+
+
+
 
 module Redcar
+  
   class InfraRecord
     
     def self.menus
@@ -60,7 +67,40 @@ module Redcar
         rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
         rhtml.result(binding)
       end
+
     end
+
+    def self.edit_view_gui_update(mate_text)
+      if @text != mate_text.get_text_widget
+        @text = mate_text.get_text_widget
+        @text.add_key_listener(KeyListener.new)
+        @text.addLineBackgroundListener(LineEventListener.new)
+      end
+    end
+
+    def self.document_cursor_listener
+      puts "Creating new DocumentController"
+      @doc = DocumentController.new
+    end
+        
+    class KeyListener
+      def key_pressed(_); 
+        puts "Infrarecord: Key pressed"
+      end
+      def key_released(e); 
+        if e.stateMask == Swt::SWT::CTRL
+          case e.keyCode
+            when 100 # 'd'
+              puts "do stuff"
+          end
+        end
+      end
+    end  
+    
+    class LineEventListener
+      def lineGetBackground(_); end
+    end
+
   end
     
 end
