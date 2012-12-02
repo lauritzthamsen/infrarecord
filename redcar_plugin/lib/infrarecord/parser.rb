@@ -9,16 +9,17 @@ module Redcar
   class InfraRecord
     
     class Node
-      attr_accessor :raw_node
+      attr_accessor :raw_node, :parent_node
       
-      def initialize(jruby_node)
+      def initialize(jruby_node, parent)
         @raw_node = jruby_node
+        @parent_node = parent
       end
       
       def node_type_string
         @raw_node.getNodeType.to_s
       end
-      
+        
       def is_const_node?
         node_type_string == "CONSTNODE"
       end
@@ -26,7 +27,7 @@ module Redcar
       #here be more stuff
       
       def child_nodes
-        @raw_node.childNodes.map{ |e| Node.new(e)}
+        @raw_node.childNodes.map{ |e| Node.new(e, self)}
       end
       
       def all_child_nodes
@@ -59,7 +60,7 @@ module Redcar
         file = "local buffer"
         begin
           n = parser.parse(file, line.to_java.get_bytes, config_19.scope, config_19)
-          return Node.new(n.getBodyNode)
+          return Node.new(n.getBodyNode, nil)
         rescue SyntaxError => e
           #create_syntax_error(file, e.exception.message, file).annotate
           nil

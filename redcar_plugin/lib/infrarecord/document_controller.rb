@@ -35,7 +35,8 @@ module Redcar
         return if node == nil
         const_node = node.find_const_node
         if const_node
-          puts "Found a const node: #{const_node.to_s}"
+          puts "C(#{const_node.getName}), parent type " +
+            const_node.parent_node.getNodeType.to_s
         end
       end
 
