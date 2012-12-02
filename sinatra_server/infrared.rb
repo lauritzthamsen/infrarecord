@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'json'
+require 'ruby2ruby'
 
 require_relative './lib/rails_loader.rb'
 require_relative './lib/parser.rb'
@@ -23,10 +24,6 @@ def handle_statement(statement)
   end
 end
 
-get '/models' do
-  rails.model_names.to_json
-end
-
 get '/:statement' do |statement|
   handle_statement(statement)
 end
@@ -36,5 +33,6 @@ post '/' do
 end
 
 get '/ast/:statement' do |statement|
-  [200, {}, InfraRecord::Parser.new.parse(statement).to_json ]
+  ast = InfraRecord::Parser.new.parse(statement)
+  [200, {}, Ruby2Ruby.new.process(ast) ]
 end
