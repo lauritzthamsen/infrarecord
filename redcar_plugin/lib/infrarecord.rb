@@ -5,49 +5,61 @@ require 'infrarecord/parser'
 require 'infrarecord/document_controller'
 require 'net/http'
 
-
-
-
 module Redcar
+  
+  class Window
+    
+    def setIRNotebook(notebook)
+      @notebook = notebook
+    end
+    
+    def getIRNotebook()
+      @notebook
+    end
+
+    def setIRTab(tab)
+      @tab = tab
+    end
+
+    def getIRTab()
+      @tab
+    end
+    
+  end
   
   class InfraRecord
     
     def self.menus
       Menu::Builder.build do
         sub_menu "Debug", :priority => 22 do
-          group(:priority => 6) do
+          group(:priority => 0) do
             item "InfraRecord", InfraRecord::OpenCommand
             separator
           end
         end
       end
     end
-
-    
+        
     class OpenCommand < Redcar::Command
       
       def execute
         return false if win.focussed_notebook_tab.nil?
         return false if win.focussed_notebook_tab.document.nil?
-                  
-        current_document = win.focussed_notebook_tab.document
-        @current_line = current_document.cursor_line + 1
-              
-        # create_notebook does not return the new notebook
-        listener = win.add_listener(:new_notebook, &method(:open_infrarecord_in_notebook))
-        win.create_notebook
-        win.remove_listener(listener)
-      end
-      
-      def open_infrarecord_in_notebook(notebook)
-        controller = Controller.new(@current_line)
-        win.set_focussed_notebook(notebook)
-        tab = win.new_tab(ConfigTab)
-        tab.html_view.controller = controller
-        tab.focus
-        
-        # how to close the notebook that present our infrarecord view in a tab??
-        # tab.add_listener(:close, )
+                
+        if win.getIRNotebook.nil? || win.getIRTab.nil?
+          win.add_listener(:new_notebook) do |notebook|
+            tab = notebook.new_tab(ConfigTab)
+            tab.html_view.controller = Controller.new(win)
+            # fixme: focus is necessary for HTML rendering. but why, oh why?
+            tab.focus
+            win.setIRTab(tab)
+            win.setIRNotebook(notebook)
+          end
+          win.create_notebook
+          # how do i trigger a rerendering...
+        # else
+          # win.getIRTab().html_view.controller.index
+        end
       end
       
     end
@@ -55,8 +67,13 @@ module Redcar
     class Controller
       include HtmlController
       
-      def initialize(line_number)
-        @line_number = line_number
+      def initialize(window)
+        @window = window
+      end
+      
+      def get_line
+        document = @window.focussed_notebook_tab.document        
+        document.get_line(document.cursor_line)
       end
       
       def title
@@ -66,6 +83,10 @@ module Redcar
       def index
         rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
         rhtml.result(binding)
+      end
+      
+      def close
+        @window.getIRTab.close
       end
 
     end
@@ -85,7 +106,7 @@ module Redcar
         
     class KeyListener
       def key_pressed(_); 
-        puts "Infrarecord: Key pressed"
+        #puts "Infrarecord: Key pressed"
       end
       def key_released(e); 
         if e.stateMask == Swt::SWT::CTRL
