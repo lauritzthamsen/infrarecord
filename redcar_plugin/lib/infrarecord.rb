@@ -85,7 +85,7 @@ module Redcar
         
     class KeyListener
       def key_pressed(_); 
-        puts "Infrarecord: Key pressed"
+        #puts "Infrarecord: Key pressed"
       end
       def key_released(e); 
         if e.stateMask == Swt::SWT::CTRL

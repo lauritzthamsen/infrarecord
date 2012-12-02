@@ -30,14 +30,13 @@ module Redcar
         line = self.document.get_line(self.document.cursor_line)
         return if line == @current_line
         @current_line = line
-        puts "current line is " + @current_line
+        #puts "current line is " + @current_line
         node = @parser.check(@current_line)
         return if node == nil
-        node = node.getBodyNode
-        puts node.getNodeName
-        node.childNodes.each {|child|
-          puts "  " + child.getNodeName
-        }
+        const_node = node.find_const_node
+        if const_node
+          puts "Found a const node: #{const_node.to_s}"
+        end
       end
 
       def eval_line(a_string)
