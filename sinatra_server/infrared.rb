@@ -36,5 +36,5 @@ post '/' do
 end
 
 get '/ast/:statement' do |statement|
-  InfraRecord::Parser.new.parse(statement)
+  [200, {}, InfraRecord::Parser.new.parse(statement).to_json ]
 end
