@@ -25,6 +25,10 @@ module Redcar
       @tab
     end
     
+    def isInfraRecordRunning?
+      !(getIRNotebook.nil? && getIRTab.nil?)
+    end
+    
   end
   
   class InfraRecord
@@ -33,20 +37,24 @@ module Redcar
       Menu::Builder.build do
         sub_menu "Debug", :priority => 22 do
           group(:priority => 0) do
-            item "InfraRecord", InfraRecord::OpenCommand
+            item "InfraRecord", InfraRecord::InfraRecordCommand
             separator
           end
         end
       end
     end
         
-    class OpenCommand < Redcar::Command
+    class InfraRecordCommand < Redcar::Command
+      
+      def initialize
+        @win = Redcar.app.focussed_window
+      end
       
       def execute
         return false if win.focussed_notebook_tab.nil?
         return false if win.focussed_notebook_tab.document.nil?
                 
-        if win.getIRNotebook.nil? || win.getIRTab.nil?
+        if !win.isInfraRecordRunning?
           win.add_listener(:new_notebook) do |notebook|
             tab = notebook.new_tab(ConfigTab)
             tab.html_view.controller = Controller.new(win)
@@ -56,9 +64,8 @@ module Redcar
             win.setIRNotebook(notebook)
           end
           win.create_notebook
-          # how do i trigger a rerendering...
-        # else
-          # win.getIRTab().html_view.controller.index
+        else
+          win.getIRTab().controller_action('index', nil)
         end
       end
       
@@ -84,10 +91,6 @@ module Redcar
         rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
         rhtml.result(binding)
       end
-      
-      def close
-        @window.getIRTab.close
-      end
 
     end
 
@@ -109,6 +112,11 @@ module Redcar
         #puts "Infrarecord: Key pressed"
       end
       def key_released(e); 
+              
+        if Redcar.app.focussed_window.isInfraRecordRunning?
+          InfraRecordCommand.new.execute
+        end
+        
         if e.stateMask == Swt::SWT::CTRL
           case e.keyCode
             when 100 # 'd'
