@@ -31,8 +31,13 @@ module Redcar
         return if line == @current_line
         @current_line = line
         puts "current line is " + @current_line
-        #eval_line(@current_line)
-        puts @parser.check(@current_line)
+        node = @parser.check(@current_line)
+        return if node == nil
+        node = node.getBodyNode
+        puts node.getNodeName
+        node.childNodes.each {|child|
+          puts "  " + child.getNodeName
+        }
       end
 
       def eval_line(a_string)

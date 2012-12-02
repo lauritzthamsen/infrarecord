@@ -1,5 +1,6 @@
 require 'java'
 
+
 import org.jruby.parser.Parser
 import org.jruby.parser.ParserConfiguration
 import org.jruby.CompatVersion
@@ -16,8 +17,10 @@ module Redcar
         file = "local buffer"
         begin
           parser.parse(file, line.to_java.get_bytes, config_19.scope, config_19)
+
         rescue SyntaxError => e
           #create_syntax_error(file, e.exception.message, file).annotate
+          nil
         end 
       end 
 
