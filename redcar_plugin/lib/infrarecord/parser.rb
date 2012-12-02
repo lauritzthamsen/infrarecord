@@ -24,6 +24,10 @@ module Redcar
         node_type_string == "CONSTNODE"
       end
       
+      def is_call_node?
+        node_type_string == "CALLNODE"
+      end
+      
       #here be more stuff
       
       def child_nodes
