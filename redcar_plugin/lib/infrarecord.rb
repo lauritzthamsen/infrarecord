@@ -1,6 +1,7 @@
 
 require 'erb'
 require 'cgi'
+require 'infrarecord/parser'
 require 'infrarecord/document_controller'
 require 'net/http'
 

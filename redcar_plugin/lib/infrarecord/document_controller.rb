@@ -1,4 +1,6 @@
+#require './parser.rb'
 
+import org.jruby.parser.Parser
 
 def http_get(url)
   url = URI.parse(url)
@@ -21,6 +23,7 @@ module Redcar
     
       def initialize
         @current_line = ""
+        @parser = Redcar::InfraRecord::SyntaxChecker.new
       end
 
       def cursor_moved(e)
@@ -28,7 +31,8 @@ module Redcar
         return if line == @current_line
         @current_line = line
         puts "current line is " + @current_line
-        eval_line(@current_line)
+        #eval_line(@current_line)
+        puts @parser.check(@current_line)
       end
 
       def eval_line(a_string)
