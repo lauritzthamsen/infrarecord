@@ -43,6 +43,10 @@ class RailsLoader
     end
   end
 
+  def model_names
+    models.map(&:name)
+  end
+
   private
 
   def execute_model_query(statement)
@@ -69,9 +73,5 @@ class RailsLoader
       Rails.application.eager_load!
       ActiveRecord::Base.descendants
     end
-  end
-
-  def model_names
-    models.map(&:name)
   end
 end
