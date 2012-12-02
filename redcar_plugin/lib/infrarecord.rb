@@ -1,6 +1,7 @@
 
 require 'erb'
 require 'cgi'
+require 'infrarecord/parser'
 require 'infrarecord/document_controller'
 require 'net/http'
 
@@ -105,7 +106,7 @@ module Redcar
         
     class KeyListener
       def key_pressed(_); 
-        puts "Infrarecord: Key pressed"
+        #puts "Infrarecord: Key pressed"
       end
       def key_released(e); 
         if e.stateMask == Swt::SWT::CTRL

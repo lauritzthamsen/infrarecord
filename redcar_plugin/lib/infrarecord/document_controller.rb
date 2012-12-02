@@ -1,4 +1,6 @@
+#require './parser.rb'
 
+import org.jruby.parser.Parser
 
 def http_get(url)
   url = URI.parse(url)
@@ -21,14 +23,27 @@ module Redcar
     
       def initialize
         @current_line = ""
+        @parser = Redcar::InfraRecord::SyntaxChecker.new
       end
 
       def cursor_moved(e)
         line = self.document.get_line(self.document.cursor_line)
         return if line == @current_line
         @current_line = line
-        puts "current line is " + @current_line
-        eval_line(@current_line)
+        #puts "current line is " + @current_line
+        node = @parser.check(@current_line)
+        return if node == nil
+        const_node = node.find_const_node
+        print_possible_orm_call(const_node) if const_node
+      end
+      
+      def print_possible_orm_call(a_node)
+        return if not (a_node.is_const_node? and 
+          a_node.parent_node.is_call_node?)
+        parent = a_node.parent_node
+        name = parent.getName
+        args = parent.getArgsNode
+        puts "#{a_node.getName}.#{name}(#{args.to_s})"
       end
 
       def eval_line(a_string)
