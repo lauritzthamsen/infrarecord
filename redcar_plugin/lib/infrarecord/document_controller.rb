@@ -1,4 +1,14 @@
 
+
+def http_get(url)
+  url = URI.parse(url)
+  req = Net::HTTP::Get.new(url.path)
+  res = Net::HTTP.start(url.host, url.port) {|http|
+    http.request(req)
+  }
+  return res.body
+end
+
 module Redcar
   class InfraRecord
     class DocumentController
@@ -9,10 +19,15 @@ module Redcar
       #include Redcar::Document::Controller::ModificationCallbacks
       include Redcar::Document::Controller::CursorCallbacks
     
+      def initialize
+        @current_line = ""
+      end
+
       def cursor_moved(e)
-        current_line = self.document.cursor_line
-        puts "current line is " + 
-          self.document.get_line(current_line)
+        line = self.document.get_line(self.document.cursor_line)
+        return if line == @current_line
+        @current_line = line
+        puts "current line is " + @current_line
       end
 
     end

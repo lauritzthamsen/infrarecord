@@ -5,14 +5,6 @@ require 'infrarecord/document_controller'
 require 'net/http'
 
 
-def http_get(url)
-  url = URI.parse(url)
-  req = Net::HTTP::Get.new(url.path)
-  res = Net::HTTP.start(url.host, url.port) {|http|
-    http.request(req)
-  }
-  return res.body
-end
 
 
 module Redcar
@@ -86,20 +78,19 @@ module Redcar
     end
 
     def self.document_cursor_listener
+      puts "Creating new DocumentController"
       @doc = DocumentController.new
     end
         
     class KeyListener
       def key_pressed(_); 
-         puts "Infrarecord: Key pressed"
+        puts "Infrarecord: Key pressed"
       end
       def key_released(e); 
         if e.stateMask == Swt::SWT::CTRL
           case e.keyCode
             when 100 # 'd'
-              puts "getting stuff from google"
-              # make sure to include trailing / ;)
-              puts http_get('http://google.com/')
+              puts "do stuff"
           end
         end
       end
