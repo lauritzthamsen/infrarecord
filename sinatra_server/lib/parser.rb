@@ -15,33 +15,18 @@ module InfraRecord
     
     def find_possible_orm_calls(a_string)
       sexp = self.parse(a_string)
-      #sexp.find_const_nodes.reduce("") { |s, e| s + e + " "}
-      sexp
+      #FIXME check if parent is call node, then figure out the chain etc.
+      sexp.find_const_nodes
     end
     
   end
-  
-  #FIXME entries works different than child_nodes in JRuby parser. Sorry i f'ed this up
-  
+    
   class AstNode
-    attr_accessor :sexp, :parent_node, :is_literal
+    attr_accessor :sexp, :parent_node
       
     def initialize(sexp, parent)
       @sexp = sexp
       @parent_node = parent
-      if sexp.class != Sexp
-        @is_literal = true
-      else
-        @is_literal = false
-      end
-    end
-    
-    def node_type
-      if self.is_literal
-        :literal
-      else
-        super
-      end
     end
     
     def is_const_node?
@@ -55,12 +40,7 @@ module InfraRecord
     #here be more stuff
       
     def child_nodes
-      if self.is_literal
-        res = []
-      else
-        res = @sexp.entries.map { |e| AstNode.new(e, self)}
-      end
-      res
+      @sexp.entries.select{ |e| e.class == Sexp }.map{ |e| AstNode.new(e, self) }
     end
       
     def all_child_nodes
@@ -72,7 +52,7 @@ module InfraRecord
     end
       
     def find_const_nodes
-      all_child_nodes.collect { |e|
+      all_child_nodes.select { |e|
         e.is_const_node?
       }
     end
