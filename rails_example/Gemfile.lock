@@ -80,6 +80,9 @@ GEM
     rake (10.0.2)
     rdoc (3.12)
       json (~> 1.4)
+    ruby2ruby (2.0.1)
+      ruby_parser (~> 3.0.0)
+      sexp_processor (~> 4.0)
     ruby_parser (3.0.4)
       sexp_processor (~> 4.1)
     sass (3.2.3)
@@ -111,6 +114,7 @@ DEPENDENCIES
   jquery-rails
   mysql2
   rails (= 3.2.9)
+  ruby2ruby
   ruby_parser
   sass-rails (~> 3.2.3)
   uglifier (>= 1.0.3)

@@ -1,11 +1,15 @@
 require 'ruby_parser'
+require 'ruby2ruby'
 
 module InfraRecord
   
   class Parser
     
+    attr_accessor :parser, :ruby2ruby
+    
     def initialize
       @parser = Ruby19Parser.new
+      @ruby2ruby = Ruby2Ruby.new
     end
     
     def parse(a_string)
@@ -14,9 +18,17 @@ module InfraRecord
     end
     
     def find_possible_orm_calls(a_string)
-      sexp = self.parse(a_string)
+      node = self.parse(a_string)
       #FIXME check if parent is call node, then figure out the chain etc.
-      sexp.find_const_nodes
+      find_const_nodes_receiving_calls(node).collect {|each|
+        ruby2ruby.process(each.parent_node.sexp)
+      }
+    end
+    
+    def find_const_nodes_receiving_calls(a_node)
+      a_node.find_const_nodes.select { |node|
+        node.is_const_node? and node.parent_node != nil and node.parent_node.is_call_node?
+      }
     end
     
   end
