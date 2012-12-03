@@ -17,6 +17,15 @@ module InfraRecord
       AstNode.new(sexp, nil)
     end
     
+    def first_possible_orm_call(a_string)
+      possible_calls = find_possible_orm_calls(a_string)
+      if possible_calls.count == 0
+        nil
+      else
+        possible_calls.first
+      end
+    end
+    
     def find_possible_orm_calls(a_string)
       node = self.parse(a_string)
       #FIXME check if parent is call node, then figure out the chain etc.
