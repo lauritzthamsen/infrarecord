@@ -1,5 +1,9 @@
 #require './parser.rb'
 
+require "uri"
+require "net/http"
+require "json"
+
 import org.jruby.parser.Parser
 
 def http_get(url)
@@ -11,10 +15,14 @@ def http_get(url)
   return res.body
 end
 
+def http_post(url, data)
+  return Net::HTTP.post_form(URI.parse(url), data).body
+end
+ 
 module Redcar
   class InfraRecord
     class DocumentController
-
+      
       attr_accessor :document
 
       include Redcar::Document::Controller
@@ -34,7 +42,11 @@ module Redcar
         node = @parser.check(@current_line)
         return if node == nil
         const_node = node.find_const_node
-        print_possible_orm_call(const_node) if const_node
+        if const_node == nil
+          return
+        end
+        #print_possible_orm_call(const_node)
+        predict_orm_call(@current_line)
       end
       
       def print_possible_orm_call(a_node)
@@ -49,6 +61,15 @@ module Redcar
       def eval_line(a_string)
         res = http_get("http://localhost:4567/#{@current_line}")
         puts res
+      end
+      
+      def predict_orm_call(a_string)
+        params = {'statement' => a_string}
+        res = http_post("http://localhost:4567/", params)
+        res = JSON.parse(res)
+        if res['status'] != 'not-found'
+          puts res['query']
+        end
       end
 
     end
