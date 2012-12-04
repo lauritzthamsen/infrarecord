@@ -27,7 +27,9 @@ module Redcar
         res = http_post("http://localhost:4567/", params)
         res = JSON.parse(res)
         if res['status'] != 'not-found'
-          puts res['query']
+          res['query']
+        else
+          nil
         end
       end
     end
