@@ -20,6 +20,8 @@ end
 def handle_statement(statement)
   halt [ 404 ] if /favicon/.match(statement)
 
+  STDOUT << "statement is '#{statement}'\n"
+
   orm_call = $parser.first_possible_orm_call(statement)
   if orm_call == nil
     return [ 404, {}, { status: 'not-found' }.to_json ]

@@ -25,13 +25,7 @@ module Redcar
         line = self.document.get_line(self.document.cursor_line)
         return if line == @current_line
         @current_line = line
-        node = @parser.check(@current_line)
-        return if node == nil
-        const_node = node.find_const_node
-        if const_node == nil
-          return
-        end
-        c = server.predict_orm_call(@current_line)
+        c = server.predict_orm_call_on_line(@current_line)
         puts c if c != nil
       end
       

@@ -9,6 +9,10 @@ module Redcar
 
     class InfraRecordInterface
 
+      def initialize
+        @parser = Redcar::InfraRecord::SyntaxChecker.new
+      end
+
       def http_get(url)
         url = URI.parse(url)
         req = Net::HTTP::Get.new(url.path)
@@ -20,6 +24,17 @@ module Redcar
 
       def http_post(url, data)
         return Net::HTTP.post_form(URI.parse(url), data).body
+      end
+
+      def predict_orm_call_on_line(a_string)
+        # check syntax before sending an acutal request
+        node = @parser.check(a_string)
+        return nil if node == nil
+        const_node = node.find_const_node
+        if const_node == nil
+          return nil
+        end
+        predict_orm_call(a_string)
       end
 
       def predict_orm_call(a_string)
