@@ -1,0 +1,11 @@
+Vortrag
+=======
+
+Motivation mehr mit immediate feedback als "ORM haben Vorteile"
+--> ORMs werden halt benutzt, sind realitaet
+wo wollen wir hin?
+- variablen unterstuetzen
+- preview von select queries
+- gem zum erstellen von Routen, die fuer uns hilfreich sind
+metriken fuer erfolg? -> vllt. auch in die Runde fragen
+
