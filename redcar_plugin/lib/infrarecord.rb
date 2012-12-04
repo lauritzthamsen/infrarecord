@@ -3,6 +3,7 @@ require 'erb'
 require 'cgi'
 require 'infrarecord/parser'
 require 'infrarecord/document_controller'
+require 'infrarecord/infrarecord_interface'
 require 'net/http'
 
 module Redcar
