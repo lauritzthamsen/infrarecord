@@ -74,9 +74,12 @@ module Redcar
     
     class Controller
       include HtmlController
-      
+
+      attr_accessor :server      
+
       def initialize(window)
         @window = window
+        @server = Redcar::InfraRecord::InfraRecordInterface.new
       end
       
       def get_line
@@ -89,8 +92,14 @@ module Redcar
       end
     
       def index
-        rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
-        rhtml.result(binding)
+        #rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
+        #rhtml.result(binding)
+        query = server.predict_orm_call_on_line(get_line)
+        if query
+          query
+        else
+          '---'
+        end 
       end
 
     end
