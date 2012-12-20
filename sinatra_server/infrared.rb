@@ -28,7 +28,8 @@ def handle_statement(statement)
   end
   
   if sql = rails.get_sql(orm_call)
-    [ 200, {}, { status: 'sql', query: sql }.to_json ]
+    rows = rails.get_query_result(sql)
+    [ 200, {}, { status: 'sql', query: sql, rows: rows}.to_json ]
   else
     [ 404, {}, { status: 'not-found' }.to_json ]
   end

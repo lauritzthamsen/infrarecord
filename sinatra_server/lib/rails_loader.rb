@@ -43,6 +43,10 @@ class RailsLoader
     end
   end
 
+  def get_query_result(sql_statement)
+    ActiveRecord::Base.connection.old_execute(sql_statement)
+  end
+
   def model_names
     models.map(&:name)
   end

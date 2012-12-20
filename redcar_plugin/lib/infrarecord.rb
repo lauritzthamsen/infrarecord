@@ -94,9 +94,10 @@ module Redcar
       def index
         #rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
         #rhtml.result(binding)
-        query = server.predict_orm_call_on_line(get_line)
-        if query
-          query
+        orm_prediction = server.predict_orm_call_on_line(get_line)
+        if orm_prediction
+          p orm_prediction.keys
+          orm_prediction[:query] + "<br>(" + orm_prediction[:rows].count.to_s + " rows)"
         else
           '---'
         end 

@@ -41,8 +41,9 @@ module Redcar
         params = {'statement' => a_string}
         res = http_post("http://localhost:4567/", params)
         res = JSON.parse(res)
+        result_hash = {:rows => res['rows'], :query => res['query']}
         if res['status'] != 'not-found'
-          res['query']
+          result_hash
         else
           nil
         end
