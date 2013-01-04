@@ -126,11 +126,12 @@ module Redcar
       
       def setBinding(name, value)
         @variables[name] = value
-        puts @variables
+        p @variables
       end
       
       def setArgValue(idx, value)
 	@args[idx] = value
+	p @args
       end
       
       def resetArgs
@@ -166,8 +167,8 @@ module Redcar
 	  '<form name="variables" >' + 
 	  (variables_in_call.keys.reduce('') do |s, e|
 	    name = variables_in_call[e]
-	    s += name + ': <input type="text" onkeydown="Javascript: if (event.keyCode==13)' +
-	    'sendBinding('+name+', event.target.value)"/><br />'
+	    s += name + ': <input type="text" onkeydown="' + #Javascript: if (event.keyCode==13)' +
+	    'sendBinding('+name+', event.target.value);"/><br />'
 	  end) + '</form>'
 	end
       end
