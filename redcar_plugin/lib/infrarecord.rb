@@ -105,11 +105,11 @@ module Redcar
     class Controller
       include HtmlController
 
-      attr_accessor :server      
+      attr_accessor :ir_interface      
 
       def initialize(window)
         @window = window
-        @server = Redcar::InfraRecord::InfraRecordInterface.new
+        @ir_interface = Redcar::InfraRecord::InfraRecordInterface.new
         
         @variables = {}
       end
@@ -129,25 +129,29 @@ module Redcar
       end
     
       def index
-        orm_prediction = server.predict_orm_call_on_line(get_line)
-	      p orm_prediction
-        if orm_prediction
-          p orm_prediction.keys
-          orm_prediction[:query] + "<br>(" + orm_prediction[:rows].count.to_s + " rows)"
-        else
-'
-<script>
-  sendBinding = function(name, value) {
-    rubyCall("setVariable", name, value);
-  }
-</script>
-
-<form name="variables" >
-  <input id="firstVariable" type="text" onkeydown="Javascript: if (event.keyCode==13) sendBinding(event.target.id, event.target.value)"/>
-  <input id="secondVariable" type="text" onkeydown="Javascript: if (event.keyCode==13) sendBinding(event.target.id, event.target.value)"/>
-</form>
-'
-        end 
+	variables_in_call = ir_interface.nonliteral_args_in_call(get_line)
+	if variables_in_call == nil
+	  '-----'
+	elsif variables_in_call.empty?
+	  orm_prediction = ir_interface.predict_orm_call_on_line(get_line)
+	  p orm_prediction
+	  if orm_prediction
+	    p orm_prediction.keys
+	    orm_prediction[:query] + "<br>(" + orm_prediction[:rows].count.to_s + " rows)"
+	  end
+	else
+	  '<script>' +
+	  'sendBinding = function(name, value) {' +
+	    'rubyCall("setVariable", name, value);' +
+	  '}' +
+	  '</script>' +
+	  '<form name="variables" >' + 
+	  (variables_in_call.keys.reduce('') do |s, e|
+	    name = variables_in_call[e]
+	    s += name + ': <input type="text" onkeydown="Javascript: if (event.keyCode==13)' +
+	    'sendBinding('+name+', event.target.value)"/><br />'
+	  end) + '</form>'
+	end
       end
 
     end

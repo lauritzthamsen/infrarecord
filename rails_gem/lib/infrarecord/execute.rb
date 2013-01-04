@@ -21,7 +21,6 @@ module Infrarecord
       rescue => e
         p "EXCEPTION: #{e.message}"
       end
-
       output
     end
   end

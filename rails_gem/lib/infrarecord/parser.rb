@@ -54,6 +54,15 @@ module Infrarecord
     def is_call_node?
       node_type == :call
     end
+    
+    def is_fcall_node?
+      node_type == :call #and receiver is nil?
+    end
+    
+    #FIXME
+    #def is_call_node?
+    #  node_type == :call #and receiver is not nil
+    #end
 
     #here be more stuff
 

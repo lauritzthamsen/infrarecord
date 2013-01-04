@@ -26,7 +26,7 @@ module Redcar
         return Net::HTTP.post_form(URI.parse(url), data).body
       end
 
-      def nonliteral_arg_indices(a_call_node)
+      def nonliteral_args(a_call_node)
 	i = 0
 	res = {}
 	args_node = a_call_node.args_node
@@ -50,10 +50,10 @@ module Redcar
 	res
       end
       
-      def nonliteral_arg_indices_in_string(a_string)
-	node = @parser.check(a_string)
+      def nonliteral_args_in_call(a_string)
+	node = potential_orm_call_node(a_string)
 	return nil if node == nil
-	return nonliteral_arg_indices(node)
+	return nonliteral_args(node)
       end
       
       def potential_orm_call_node(a_string)
@@ -73,7 +73,7 @@ module Redcar
       def predict_orm_call_on_line(a_string)
         node = potential_orm_call_node(a_string)
 	return if not node
-	arg_idxs = nonliteral_arg_indices(node)
+	arg_idxs = nonliteral_args(node)
 	p arg_idxs
 	predict_orm_call(a_string)
       end
@@ -82,6 +82,7 @@ module Redcar
         params = {'statement' => a_string}
         res = http_post("http://localhost:3000/infrarecord", params)
         res = JSON.parse(res)
+	p "This is the result: "
 	p res
         result_hash = {:rows => res['rows'], :query => res['query']}
         if res['status'] != 'not-found'
