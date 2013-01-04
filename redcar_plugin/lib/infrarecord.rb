@@ -138,6 +138,13 @@ module Redcar
 	p @args
       end
       
+      def update_args_from_bindings(variables_map)
+	variables_map.keys.each do |idx|
+	  name = variables_map[idx]
+	  setArgValue(idx, getBinding(name))
+	end
+      end
+      
       def resetArgs
 	@args = {}
       end
@@ -160,6 +167,8 @@ module Redcar
 	    '-----'
 	  end
 	else
+	  update_args_from_bindings(variables_in_call)
+	  i = 0
 	  '<script>' +
 	  'sendBinding = function(name, value) {' +
 	    'rubyCall(\'setBinding\', name, value);' +
@@ -171,10 +180,13 @@ module Redcar
 	  '<form name="variables" >' + 
 	  (variables_in_call.keys.reduce('') do |s, e|
 	    name = variables_in_call[e]
-	    s += name + ': <input type="text" onkeyup="' + #Javascript: if (event.keyCode==13)' +
-	      #'alert(\'foo\');' +
-	      'sendBinding(\''+name+'\', event.target.value);'+
+	    id = i.to_s; i += 1
+	    res = s + name + ': <input type="text" id="' + id + '" onkeyup="' + 
+	      'sendBinding(\''  + name + '\', event.target.value);'+
+	      'sendArgValue(\'' + id   + '\', event.target.value);' +
 	      '" value="' + getBinding(name) + '" /><br />'
+	    puts "HTML " + res
+	    res
 	  end) + '</form>'
 	end
       end
