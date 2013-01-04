@@ -26,11 +26,7 @@ module Redcar
         return Net::HTTP.post_form(URI.parse(url), data).body
       end
 
-      def extract_nonliteral_arg_indices(a_call_node)
-	#p a_call_node.to_json
-	#p a_call_node.raw_node.methods.sort
-	#p a_call_node.all_child_nodes.map {|n| 
-	#  n.as_code}
+      def nonliteral_arg_indices(a_call_node)
 	i = 0
 	res = {}
 	args_node = a_call_node.args_node
@@ -54,9 +50,8 @@ module Redcar
 	res
       end
       
-      def predict_orm_call_on_line(a_string)
-        # check syntax before sending an acutal request
-        node = @parser.check(a_string)
+      def potential_orm_call_node(a_string)
+	node = @parser.check(a_string)
         return nil if node == nil
         const_node = node.find_const_node
         if const_node == nil
@@ -66,7 +61,13 @@ module Redcar
 	if not parent.is_call_node?
           return nil
         end
-	arg_idxs = extract_nonliteral_arg_indices(parent)
+	parent
+      end
+      
+      def predict_orm_call_on_line(a_string)
+        node = potential_orm_call_node(a_string)
+	return if not node
+	arg_idxs = nonliteral_arg_indices(node)
 	p arg_idxs
 	predict_orm_call(a_string)
       end
