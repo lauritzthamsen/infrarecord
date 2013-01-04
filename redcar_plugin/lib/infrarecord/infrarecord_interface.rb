@@ -73,8 +73,9 @@ module Redcar
 
       def predict_orm_call(a_string)
         params = {'statement' => a_string}
-        res = http_post("http://localhost:4567/", params)
+        res = http_post("http://localhost:3000/infrarecord", params)
         res = JSON.parse(res)
+	p res
         result_hash = {:rows => res['rows'], :query => res['query']}
         if res['status'] != 'not-found'
           result_hash

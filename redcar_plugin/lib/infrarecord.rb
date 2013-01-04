@@ -2,7 +2,6 @@
 require 'erb'
 require 'cgi'
 require 'infrarecord/parser'
-require 'infrarecord/document_controller'
 require 'infrarecord/infrarecord_interface'
 require 'net/http'
 
@@ -123,9 +122,9 @@ module Redcar
       end
     
       def index
-        #rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
-        #rhtml.result(binding)
         orm_prediction = server.predict_orm_call_on_line(get_line)
+	puts "prediction"
+	p orm_prediction
         if orm_prediction
           p orm_prediction.keys
           orm_prediction[:query] + "<br>(" + orm_prediction[:rows].count.to_s + " rows)"
@@ -143,16 +142,11 @@ module Redcar
         @text.addLineBackgroundListener(LineEventListener.new)
       end
     end
-
-    def self.document_cursor_listener
-      puts "Creating new DocumentController"
-      @doc = DocumentController.new
-    end
-        
+    
     class KeyListener
       def key_pressed(_); 
-        #puts "Infrarecord: Key pressed"
       end
+
       def key_released(e); 
               
         if Redcar.app.focussed_window.isInfraRecordRunning?
