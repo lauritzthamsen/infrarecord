@@ -110,8 +110,9 @@ module Redcar
       def initialize(window)
         @window = window
         @ir_interface = Redcar::InfraRecord::InfraRecordInterface.new
-        
+        @current_line = ''
         @variables = {}
+	@args = {}
       end
       
       def get_line
@@ -123,12 +124,24 @@ module Redcar
         "InfraRecord"
       end
       
-      def setVariable(name, value)
+      def setBinding(name, value)
         @variables[name] = value
         puts @variables
       end
+      
+      def setArgValue(idx, value)
+	@args[idx] = value
+      end
+      
+      def resetArgs
+	@args = {}
+      end
     
       def index
+	if get_line != @current_line
+	  @current_line = get_line
+	  resetArgs
+	end
 	variables_in_call = ir_interface.nonliteral_args_in_call(get_line)
 	if variables_in_call == nil
 	  '-----'
@@ -138,11 +151,16 @@ module Redcar
 	  if orm_prediction
 	    p orm_prediction.keys
 	    orm_prediction[:query] + "<br>(" + orm_prediction[:rows].count.to_s + " rows)"
+	  else
+	    '-----'
 	  end
 	else
 	  '<script>' +
 	  'sendBinding = function(name, value) {' +
-	    'rubyCall("setVariable", name, value);' +
+	    'rubyCall("setBinding", name, value);' +
+	  '}' +
+	  'sendArgValue = function(index, value) {' +
+	    'rubyCall("setArgValue", index, value);' +
 	  '}' +
 	  '</script>' +
 	  '<form name="variables" >' + 
