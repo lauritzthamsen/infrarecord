@@ -158,17 +158,19 @@ module Redcar
 	else
 	  '<script>' +
 	  'sendBinding = function(name, value) {' +
-	    'rubyCall("setBinding", name, value);' +
-	  '}' +
+	    'rubyCall(\'setBinding\', name, value);' +
+	  '};' +
 	  'sendArgValue = function(index, value) {' +
-	    'rubyCall("setArgValue", index, value);' +
+	    'rubyCall(\'setArgValue\', index, value);' +
 	  '}' +
 	  '</script>' +
 	  '<form name="variables" >' + 
 	  (variables_in_call.keys.reduce('') do |s, e|
 	    name = variables_in_call[e]
 	    s += name + ': <input type="text" onkeydown="' + #Javascript: if (event.keyCode==13)' +
-	    'sendBinding('+name+', event.target.value);"/><br />'
+	      #'alert(\'foo\');' +
+	      'sendBinding(\''+name+'\', event.target.value);'+
+	      '"/><br />'
 	  end) + '</form>'
 	end
       end
