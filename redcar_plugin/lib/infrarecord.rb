@@ -110,6 +110,8 @@ module Redcar
       def initialize(window)
         @window = window
         @server = Redcar::InfraRecord::InfraRecordInterface.new
+        
+        @variables = {}
       end
       
       def get_line
@@ -120,16 +122,31 @@ module Redcar
       def title
         "InfraRecord"
       end
+      
+      def setVariable(name, value)
+        @variables[name] = value
+        puts @variables
+      end
     
       def index
         orm_prediction = server.predict_orm_call_on_line(get_line)
-	puts "prediction"
-	p orm_prediction
+	      p orm_prediction
         if orm_prediction
           p orm_prediction.keys
           orm_prediction[:query] + "<br>(" + orm_prediction[:rows].count.to_s + " rows)"
         else
-          '---'
+'
+<script>
+  sendBinding = function(name, value) {
+    rubyCall("setVariable", name, value);
+  }
+</script>
+
+<form name="variables" >
+  <input id="firstVariable" type="text" onkeydown="Javascript: if (event.keyCode==13) sendBinding(event.target.id, event.target.value)"/>
+  <input id="secondVariable" type="text" onkeydown="Javascript: if (event.keyCode==13) sendBinding(event.target.id, event.target.value)"/>
+</form>
+'
         end 
       end
 
