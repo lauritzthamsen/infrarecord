@@ -1,3 +1,8 @@
+PATH
+  remote: ../rails_gem
+  specs:
+    infrarecord (0.0.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -111,6 +116,7 @@ PLATFORMS
 
 DEPENDENCIES
   coffee-rails (~> 3.2.1)
+  infrarecord!
   jquery-rails
   mysql2
   rails (= 3.2.9)
