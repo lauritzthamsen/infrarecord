@@ -5,6 +5,7 @@ import org.jruby.parser.Parser
 import org.jruby.parser.ParserConfiguration
 import org.jruby.CompatVersion
 import org.jruby.ast.util.SexpMaker
+import org.jruby.runtime.ThreadContext;
 
 module Redcar
   class InfraRecord
@@ -27,6 +28,10 @@ module Redcar
       
       def is_call_node?
         node_type_string == "CALLNODE"
+      end
+      
+      def is_fcall_node?
+        node_type_string == "FCALLNODE"
       end
       
       #here be more stuff

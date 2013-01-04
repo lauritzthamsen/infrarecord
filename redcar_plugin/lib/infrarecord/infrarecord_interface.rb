@@ -26,15 +26,32 @@ module Redcar
         return Net::HTTP.post_form(URI.parse(url), data).body
       end
 
-      def prepare_possible_orm_call(a_call_node)
+      def extract_nonliteral_arg_indices(a_call_node)
 	#p a_call_node.to_json
 	#p a_call_node.raw_node.methods.sort
 	#p a_call_node.all_child_nodes.map {|n| 
-	#  n.all_child_nodes}
+	#  n.as_code}
+	i = 0
+	res = {}
 	args_node = a_call_node.args_node
 	if a_call_node.args_node.respond_to?(:child_nodes)
-	  puts "need to process #{args_node.child_nodes.count} arguments"
+	  args_node.child_nodes.each do |node|
+	    if node.respond_to?(:get_name)
+	      tmp_node = Node.new(node, nil)
+	      if tmp_node.is_call_node?
+		res[i] = node.getReceiverNode().getName() + "." + node.get_name + "()"
+	      elsif tmp_node.is_fcall_node?
+		res[i] = node.getName() + "()"
+	      else
+		res[i] = node.get_name
+	      end
+	    end
+	    i += 1
+	  end
+	else
+	  []
 	end
+	res
       end
       
       def predict_orm_call_on_line(a_string)
@@ -49,7 +66,8 @@ module Redcar
 	if not parent.is_call_node?
           return nil
         end
-	prepare_possible_orm_call(parent) #FIXME do something meaningful
+	arg_idxs = extract_nonliteral_arg_indices(parent)
+	p arg_idxs
 	predict_orm_call(a_string)
       end
 
