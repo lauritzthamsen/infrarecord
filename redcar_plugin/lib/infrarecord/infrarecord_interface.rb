@@ -50,6 +50,12 @@ module Redcar
 	res
       end
       
+      def nonliteral_arg_indices_in_string(a_string)
+	node = @parser.check(a_string)
+	return nil if node == nil
+	return nonliteral_arg_indices(node)
+      end
+      
       def potential_orm_call_node(a_string)
 	node = @parser.check(a_string)
         return nil if node == nil
