@@ -4,6 +4,7 @@ require 'java'
 import org.jruby.parser.Parser
 import org.jruby.parser.ParserConfiguration
 import org.jruby.CompatVersion
+import org.jruby.ast.util.SexpMaker
 
 module Redcar
   class InfraRecord
@@ -52,6 +53,10 @@ module Redcar
         @raw_node.send(name, *args, &block)
       end
       
+      def as_sexp
+	SexpMaker.create(raw_node)
+      end
+      
     end
     
     class SyntaxChecker < Redcar::SyntaxCheck::Checker
@@ -77,8 +82,6 @@ module Redcar
         message  = $2
         Redcar::SyntaxCheck::Error.new(doc, line, message)
       end 
-
-      private
 
       def runtime
         org.jruby.Ruby.global_runtime
