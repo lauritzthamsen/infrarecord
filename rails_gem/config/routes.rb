@@ -1,3 +1,5 @@
 Rails.application.routes.draw do
-  get "infrarecord" => "infrarecord/infrarecord#index"
+  namespace :infrarecord do
+    post "/"              => "infrarecord#statement"
+  end
 end

@@ -12,4 +12,6 @@ Gem::Specification.new do |gem|
   gem.name          = "infrarecord"
   gem.require_paths = ["lib"]
   gem.version       = Infrarecord::VERSION
+  gem.add_dependency "ruby_parser"
+  gem.add_dependency "ruby2ruby"
 end

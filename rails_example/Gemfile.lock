@@ -2,6 +2,8 @@ PATH
   remote: ../rails_gem
   specs:
     infrarecord (0.0.1)
+      ruby2ruby
+      ruby_parser
 
 GEM
   remote: https://rubygems.org/

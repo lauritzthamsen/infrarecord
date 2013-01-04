@@ -1,13 +1,10 @@
 require "infrarecord/version"
 
 module Infrarecord
-  mattr_accessor :app_root
+  require 'ruby_parser'
+  require 'ruby2ruby'
 
-  # Yield self on setup for nice config blocks
-  def self.setup
-    yield self
-  end
-
-  # Require our engine
-  require "infrarecord/engine"
+  require 'infrarecord/engine'
+  require 'infrarecord/parser'
+  require 'infrarecord/execute'
 end
