@@ -14,7 +14,7 @@ module Redcar
       @notebook = notebook
     end
     
-    def getIRNotebook()
+    def getIRNotebook
       @notebook
     end
 
@@ -22,12 +22,22 @@ module Redcar
       @tab = tab
     end
 
-    def getIRTab()
+    def getIRTab
       @tab
     end
     
     def isInfraRecordRunning?
-      !(getIRNotebook.nil? && getIRTab.nil?)
+      @infraRecordRunning == true
+    end
+    
+    def startInfraRecord
+      @infraRecordRunning = true
+      
+      add_listener(:notebook_removed) do |notebook|
+        if notebook == getIRNotebook
+          setIRNotebook(nil)
+        end
+      end
     end
     
   end
@@ -51,20 +61,41 @@ module Redcar
         @win = Redcar.app.focussed_window
       end
       
+      def createIRTabInNotebook(notebook)
+        tab = notebook.new_tab(ConfigTab)
+        tab.html_view.controller = Controller.new(win)
+        
+        win.setIRTab(tab)
+        
+        tab.add_listener(:close) do ||
+          win.setIRTab(nil)
+        end
+        
+        # focus necessary to trigger rendering...sucks...
+        tab.focus
+      end
+      
+      def createIRNotebook
+        create_listener = win.add_listener(:new_notebook) do |notebook|
+          createIRTabInNotebook(notebook)
+          win.setIRNotebook(notebook)
+        end
+        win.create_notebook
+        win.remove_listener(create_listener)
+      end
+      
       def execute
         return false if win.focussed_notebook_tab.nil?
         return false if win.focussed_notebook_tab.document.nil?
-                
+        
         if !win.isInfraRecordRunning?
-          win.add_listener(:new_notebook) do |notebook|
-            tab = notebook.new_tab(ConfigTab)
-            tab.html_view.controller = Controller.new(win)
-            # fixme: focus is necessary for HTML rendering. but why, oh why?
-            tab.focus
-            win.setIRTab(tab)
-            win.setIRNotebook(notebook)
-          end
-          win.create_notebook
+          win.startInfraRecord
+        end
+                
+        if win.getIRNotebook.nil?
+          createIRNotebook
+        elsif win.getIRTab.nil?
+          createIRTabInNotebook(win.getIRNotebook)
         else
           win.getIRTab().controller_action('index', nil)
         end
