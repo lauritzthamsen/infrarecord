@@ -4,6 +4,8 @@ require 'java'
 import org.jruby.parser.Parser
 import org.jruby.parser.ParserConfiguration
 import org.jruby.CompatVersion
+import org.jruby.ast.util.SexpMaker
+import org.jruby.runtime.ThreadContext;
 
 module Redcar
   class InfraRecord
@@ -28,6 +30,10 @@ module Redcar
         node_type_string == "CALLNODE"
       end
       
+      def is_fcall_node?
+        node_type_string == "FCALLNODE"
+      end
+      
       #here be more stuff
       
       def child_nodes
@@ -50,6 +56,10 @@ module Redcar
       
       def method_missing(name, *args, &block)
         @raw_node.send(name, *args, &block)
+      end
+      
+      def as_sexp
+	SexpMaker.create(raw_node)
       end
       
     end
@@ -77,8 +87,6 @@ module Redcar
         message  = $2
         Redcar::SyntaxCheck::Error.new(doc, line, message)
       end 
-
-      private
 
       def runtime
         org.jruby.Ruby.global_runtime
