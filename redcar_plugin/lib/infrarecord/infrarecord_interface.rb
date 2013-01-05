@@ -5,7 +5,7 @@ require "json"
 
 module Redcar
 
-  class InfraRecord 
+  class InfraRecord
 
     class InfraRecordInterface
 
@@ -49,13 +49,13 @@ module Redcar
 	end
 	res
       end
-      
+
       def nonliteral_args_in_call(a_string)
 	node = potential_orm_call_node(a_string)
 	return nil if node == nil
 	return nonliteral_args(node)
       end
-      
+
       def potential_orm_call_node(a_string)
 	node = @parser.check(a_string)
         return nil if node == nil
@@ -69,7 +69,7 @@ module Redcar
         end
 	parent
       end
-      
+
       def predict_orm_call_on_line(a_string)
         node = potential_orm_call_node(a_string)
 	return if not node
