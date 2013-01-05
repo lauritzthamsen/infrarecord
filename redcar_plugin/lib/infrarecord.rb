@@ -158,52 +158,62 @@ module Redcar
       end
     
       def index
-	      if get_line != @current_line
-	        @current_line = get_line
-	        resetArgs
-	      end
+        output = """
+          <script>
+            sendBinding = function(name, value) {
+              rubyCall('setBinding', name, value);
+            };
+            sendArgValue = function(index, value) {
+              rubyCall('setArgValue', index, value);
+            };
+          </script>
+        """
         
-        output = ""
-        
-        (1..document.line_count).each do |line_number|
+        (0..document.line_count).each do |line_number|
+          resetArgs
           
           statement = get_line(line_number)
-          print_line_number = (line_number + 1)
-          
+          statement_line_number = (line_number + 1)
   	      variables_in_call = ir_interface.nonliteral_args_in_call(statement)
           
           if variables_in_call.nil?
+            # no call nodes found
             next
           elsif variables_in_call.empty?
-            orm_prediction = ir_interface.predict_orm_call_on_line(statement)
-            p orm_prediction
-            if orm_prediction
-              p orm_prediction.keys
-              
-              output += "<div id='" + print_line_number.to_s + "'>#" + print_line_number.to_s + ":<br>" + orm_prediction[:query] + "<br>(" + orm_prediction[:rows].count.to_s + " rows)</div>"
+            # no variables to be entered by user
+            if orm_prediction = ir_interface.predict_orm_call_on_line(statement)
+              output += """
+                <div id='#{statement_line_number.to_s}'>
+                  ##{statement_line_number.to_s}<br>
+                  #{orm_prediction[:query]}<br>
+                  (#{orm_prediction[:rows].count.to_s} rows)
+                </div>
+              """
             end
           else
+            # variables to be entered by user
             update_args_from_bindings(variables_in_call)
             i = 0
-            output += '<script>' +
-              'sendBinding = function(name, value) {' +
-              'rubyCall(\'setBinding\', name, value);' +
-              '};' +
-              'sendArgValue = function(index, value) {' +
-              'rubyCall(\'setArgValue\', index, value);' +
-              '}' +
-              '</script>' +
-              '<form name="variables" >' + 
-              (variables_in_call.keys.reduce('') do |s, e|
-                name = variables_in_call[e]
-                id = i.to_s; i += 1
-                res = s + name + ': <input type="text" id="' + id + '" onkeyup="' + 
-                  'sendBinding(\''  + name + '\', event.target.value);'+
-                  'sendArgValue(\'' + id   + '\', event.target.value);' +
-                  '" value="' + getBinding(name) + '" /><br />'
-                puts "HTML " + res
-                res
-              end) + '</form>'
+            output += "<form name='variables'>"
+            output += variables_in_call.keys.reduce('') do |string, key|
+              name = variables_in_call[key]
+              id = i.to_s
+              i += 1
+              
+              string += """
+                <label>#{name}:<name>
+                <input 
+                  type=\"text\"
+                  id=\"#{id}\"
+                  value=\"#{getBinding(name)}\"
+                  onkeyup=\" 
+                    sendBinding('#{name}', event.target.value);
+                    sendArgValue('#{id}', event.target.value);
+                  \"
+                /><br />
+              """
+            end
+            output += '</form>'
           end
           output += "<br><br>"
         end
