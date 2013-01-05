@@ -158,16 +158,7 @@ module Redcar
       end
     
       def index
-        output = """
-          <script>          
-            sendBinding = function(name, value) {
-              rubyCall('setBinding', name, value);
-            };
-            sendArgValue = function(index, value) {
-              rubyCall('setArgValue', index, value);
-            };
-          </script>
-        """
+        output = ""
         
         (0..document.line_count).each do |line_number|
           resetArgs
@@ -176,9 +167,9 @@ module Redcar
           statement_line_number = (line_number + 1)
   	      variables_in_call = ir_interface.nonliteral_args_in_call(statement)
           
-          style = if statement_line_number == current_line_number
-              "border : 1px solid black"
-            end
+          css_class = if statement_line_number == current_line_number
+            "current"
+          end
           
           if variables_in_call.nil?
             # no call nodes found
@@ -187,7 +178,7 @@ module Redcar
             # no variables to be entered by user
             if orm_prediction = ir_interface.predict_orm_call_on_line(statement)
               output += """
-                <div style=\"#{style}\" id='#{statement_line_number.to_s}'>
+                <div class=\"#{css_class}\" id='#{statement_line_number.to_s}'>
                   ##{statement_line_number.to_s}<br>
                   #{orm_prediction[:query]}<br>
                   (#{orm_prediction[:rows].count.to_s} rows)
