@@ -79,7 +79,8 @@ module Redcar
       end
 
       def predict_orm_call(a_string)
-        params = {'statement' => a_string}
+        params = {'statement' => a_string, # must not unparse!
+                  'bindings' => JSON.unparse({0 => "1337"})} # must unparse
         res = http_post("http://localhost:3000/infrarecord", params)
         res = JSON.parse(res)
 	p "This is the result: "
