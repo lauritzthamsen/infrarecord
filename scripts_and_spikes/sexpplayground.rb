@@ -49,14 +49,15 @@ class Sexp
     return res if not has_const_receiver?
     parser = RubyParser.new
     bindings.each do |k, v|
+      # all vs must be Hashes with 'value' key
       # calling parser.parse
-      #   v       | parser.parse(v)
-      #-----------+------------------
-      # "5"       | s(:lit, 5)
-      # "\"foo\"" | s(:str, "foo")
+      #   v['value']       | parser.parse(v)
+      #--------------------+------------------
+      # "5"                | s(:lit, 5)
+      # "\"foo\""          | s(:str, "foo")
       #
       # All values in bindings are expected to be strings
-      res = res.replace_arg_in_const_call(k, parser.parse(v))
+      res = res.replace_arg_in_const_call(k.to_i, parser.parse(v['value']))
     end
     res
   end
@@ -103,7 +104,8 @@ s8 = rp.parse('a = Foo.bar(Baz.x, y)')
 p rr.process(s8.first_const_call)
 
 s9 = rp.parse('Foo.bar(1, d, e)')
-b = {2 => "5", 1 => "\"baz\""}
+b = {'2' => {'value' => "5", 'name' => 'e'}, 
+     '1' => {'value' => "\"baz\"", 'name' => 'd'}}
 s10 = s9.replace_args_with_bindings(b)
 p s10
 p rr.process(s10)
