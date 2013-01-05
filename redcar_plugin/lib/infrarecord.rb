@@ -159,7 +159,7 @@ module Redcar
     
       def index
         output = """
-          <script>
+          <script>          
             sendBinding = function(name, value) {
               rubyCall('setBinding', name, value);
             };
@@ -219,6 +219,9 @@ module Redcar
         end
         
 	      output
+        
+        rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
+        rhtml.result(binding)
       end
 
     end
