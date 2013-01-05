@@ -1,3 +1,67 @@
+class Sexp
+    
+    #extensions to Sexp
+  
+    def is_call?
+        count > 2 and self[0] == :call
+    end
+    
+    def has_receiver?
+        is_call? and self[1] != nil
+    end
+
+    def has_const_receiver?
+        has_receiver? and self[1][0] == :const
+    end
+
+    def recursive_replace(old, new)
+        if self == old
+            return new
+        end
+        res = Sexp.new
+        self.each do |exp|
+            if exp.class == Sexp
+                res << exp.recursive_replace(old, new)
+            else
+                res << exp
+            end
+        end
+        res
+    end
+
+    def args
+        return nil if not is_call?
+        return [] if self.count < 4
+        self[3..self.count]
+    end
+
+    def replace_arg_in_const_call(idx, new_exp)
+        res = self.clone
+        return res if not has_const_receiver?
+        return res if args.count < 1
+        res[3 + idx] = Sexp.from_array(new_exp)
+        res
+    end
+
+    def all_const_calls
+        res = []
+        res << self.clone if has_const_receiver?
+        self.each do |e|
+            if e.class == Sexp
+                res.concat(e.all_const_calls)
+            end
+        end
+        res
+    end
+
+    def first_const_call
+	calls = all_const_calls
+        return nil if calls.count == 0
+        calls.first
+    end
+end
+
+
 module Infrarecord
 
   class Parser
@@ -10,83 +74,16 @@ module Infrarecord
     end
 
     def parse(a_string)
-      sexp = @parser.parse(a_string)
-      AstNode.new(sexp, nil)
+      @parser.parse(a_string)
     end
 
     def first_possible_orm_call(a_string)
-      possible_calls = find_possible_orm_calls(a_string)
-      if possible_calls.count == 0
-        nil
-      else
-        possible_calls.first
-      end
-    end
-
-    def find_possible_orm_calls(a_string)
-      node = self.parse(a_string)
-      #FIXME check if parent is call node, then figure out the chain etc.
-      find_const_nodes_receiving_calls(node).collect {|each|
-        ruby2ruby.process(each.parent_node.sexp)
-      }
-    end
-
-    def find_const_nodes_receiving_calls(a_node)
-      a_node.find_const_nodes.select { |node|
-        node.is_const_node? and node.parent_node != nil and node.parent_node.is_call_node?
-      }
+      possible_call = parse(a_string).first_const_call
+      return nil if possible_call.nil?
+      @ruby2ruby.process(possible_call)
     end
 
   end
 
-  class AstNode
-    attr_accessor :sexp, :parent_node
-
-    def initialize(sexp, parent)
-      @sexp = sexp
-      @parent_node = parent
-    end
-
-    def is_const_node?
-      node_type == :const
-    end
-
-    def is_call_node?
-      node_type == :call
-    end
-    
-    def is_fcall_node?
-      node_type == :call #and receiver is nil?
-    end
-    
-    #FIXME
-    #def is_call_node?
-    #  node_type == :call #and receiver is not nil
-    #end
-
-    #here be more stuff
-
-    def child_nodes
-      @sexp.entries.select{ |e| e.class == Sexp }.map{ |e| AstNode.new(e, self) }
-    end
-
-    def all_child_nodes
-      res = [self]
-      self.child_nodes.each { |e|
-        res = res.concat(e.all_child_nodes)
-      }
-      res
-    end
-
-    def find_const_nodes
-      all_child_nodes.select { |e|
-        e.is_const_node?
-      }
-    end
-
-    def method_missing(name, *args, &block)
-      @sexp.send(name, *args, &block)
-    end
-  end
 end
 
