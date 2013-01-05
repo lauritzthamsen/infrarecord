@@ -48,14 +48,15 @@ class Sexp
     return res if not has_const_receiver?
     parser = RubyParser.new
     bindings.each do |k, v|
+      # all vs must be Hashes with 'value' key
       # calling parser.parse
-      #   v       | parser.parse(v)
-      #-----------+------------------
-      # "5"       | s(:lit, 5)
-      # "\"foo\"" | s(:str, "foo")
+      #   v['value']       | parser.parse(v)
+      #--------------------+------------------
+      # "5"                | s(:lit, 5)
+      # "\"foo\""          | s(:str, "foo")
       #
       # All values in bindings are expected to be strings
-      res = res.replace_arg_in_const_call(k, parser.parse(v))
+      res = res.replace_arg_in_const_call(k.to_i, parser.parse(v['value']))
     end
     res
   end
@@ -97,7 +98,7 @@ module Infrarecord
     def first_possible_orm_call(a_string, bindings)
       possible_call = parse(a_string).first_const_call
       return nil if possible_call.nil?
-      @ruby2ruby.process(possible_call)
+      @ruby2ruby.process(possible_call.replace_args_with_bindings(bindings))
     end
     
   end
