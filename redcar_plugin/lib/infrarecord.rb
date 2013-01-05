@@ -171,18 +171,18 @@ module Redcar
             "current"
           end
           
-          if variables_in_call.nil?
+          next if variables_in_call.nil?
             # no call nodes found
-            next
-          elsif variables_in_call.empty?
+          
+          output += "<div class=\"#{css_class}\" id='#{statement_line_number.to_s}'>"
+            
+          if variables_in_call.empty?
             # no variables to be entered by user
             if orm_prediction = ir_interface.predict_orm_call_on_line(statement)
               output += """
-                <div class=\"#{css_class}\" id='#{statement_line_number.to_s}'>
                   ##{statement_line_number.to_s}<br>
                   #{orm_prediction[:query]}<br>
                   (#{orm_prediction[:rows].count.to_s} rows)
-                </div>
               """
             end
           else
@@ -210,6 +210,7 @@ module Redcar
             end
             output += '</form>'
           end
+          output += "</div>"
           output += "<br><br>"
         end
         
