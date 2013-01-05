@@ -44,6 +44,23 @@ class Sexp
         res
     end
 
+    def all_const_calls
+        res = []
+        res << self.clone if has_const_receiver?
+        self.each do |e|
+            if e.class == Sexp
+                res.concat(e.all_const_calls)
+            end
+        end
+        res
+    end
+
+    def first_const_call
+        calls = all_const_calls
+        return nil if calls.count == 0
+        calls.first
+    end
+
 end
 
 
@@ -64,4 +81,7 @@ puts s2.has_const_receiver?
 p s3.args
 p s7
 puts rr.process(s7)
+
+s8 = rp.parse('a = Foo.bar(Baz.x, y)')
+p rr.process(s8.first_const_call)
 
