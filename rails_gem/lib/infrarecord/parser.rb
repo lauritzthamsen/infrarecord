@@ -11,7 +11,7 @@ class Sexp
   end
 
   def has_const_receiver?
-    has_receiver? and self[1][0] == :const
+    has_receiver? and self[1] and self[1][0] == :const
   end
 
   def recursive_replace(old, new)
