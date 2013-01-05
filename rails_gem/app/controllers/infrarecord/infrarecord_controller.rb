@@ -1,10 +1,12 @@
 module Infrarecord
   class InfrarecordController < ApplicationController
     def statement
-      p "Statement is '#{params[:statement]}'"
-      p "Bindings is '#{params[:bindings]}'"
+      s = params[:statement]
+      b = JSON.parse(params[:bindings] || '{}')
+      p "Statement is '#{s}'"
+      p "Bindings is '#{b}' (#{b.class})"
 
-      orm_call = parser.first_possible_orm_call(params[:statement], params[:bindings])
+      orm_call = parser.first_possible_orm_call(s, b)
       if orm_call == nil
         render :status => 404, :text => { status: 'not-found' }.to_json
       else
