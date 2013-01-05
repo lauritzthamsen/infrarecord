@@ -196,7 +196,7 @@ module Redcar
               i += 1
               
               string += """
-                <label>#{name}:<name>
+                <label>#{name}:<name></label>
                 <input 
                   type=\"text\"
                   id=\"#{id}\"
