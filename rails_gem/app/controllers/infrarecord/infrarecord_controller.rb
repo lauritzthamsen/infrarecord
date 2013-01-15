@@ -20,6 +20,12 @@ module Infrarecord
       end
     end
 
+    def models
+      res = ActiveRecord::Base.subclasses.map {|e| e.to_s}
+      render :text => { models:  res }.to_json
+      #render :text => "Hello World"
+    end
+
     private
 
     def parser
