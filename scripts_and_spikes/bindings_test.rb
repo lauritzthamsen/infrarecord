@@ -15,3 +15,8 @@ bindings = {0 => {:name => 'title', :value => '"The Title"'}}
 data = {:statement => 'Post.find_by_title(title)',
         :bindings => JSON.unparse(bindings)}
 p http_post('http://localhost:3000/infrarecord/', data)
+
+bindings = {}
+data = {:statement => 'Post.all',
+        :bindings => JSON.unparse(bindings)}
+p http_post('http://localhost:3000/infrarecord/', data)
