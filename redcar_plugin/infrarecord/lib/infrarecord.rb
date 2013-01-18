@@ -6,13 +6,13 @@ require 'infrarecord/infrarecord_interface'
 require 'net/http'
 
 module Redcar
-  
+
   class Window
-    
+
     def setIRNotebook(notebook)
       @notebook = notebook
     end
-    
+
     def getIRNotebook
       @notebook
     end
@@ -24,25 +24,25 @@ module Redcar
     def getIRTab
       @tab
     end
-    
+
     def isInfraRecordRunning?
       @infraRecordRunning == true
     end
-    
+
     def startInfraRecord
       @infraRecordRunning = true
-      
+
       add_listener(:notebook_removed) do |notebook|
         if notebook == getIRNotebook
           setIRNotebook(nil)
         end
       end
     end
-    
+
   end
-  
+
   class InfraRecord
-    
+
     def self.menus
       Menu::Builder.build do
         sub_menu "Debug", :priority => 22 do
@@ -53,27 +53,27 @@ module Redcar
         end
       end
     end
-        
+
     class InfraRecordCommand < Redcar::Command
-      
+
       def initialize
         @win = Redcar.app.focussed_window
       end
-      
+
       def createIRTabInNotebook(notebook)
         tab = notebook.new_tab(ConfigTab)
         tab.html_view.controller = Controller.new(win)
-        
+
         win.setIRTab(tab)
-        
+
         tab.add_listener(:close) do ||
           win.setIRTab(nil)
         end
-        
+
         # focus necessary to trigger rendering...sucks...
         tab.focus
       end
-      
+
       def createIRNotebook
         create_listener = win.add_listener(:new_notebook) do |notebook|
           createIRTabInNotebook(notebook)
@@ -82,15 +82,15 @@ module Redcar
         win.create_notebook
         win.remove_listener(create_listener)
       end
-      
+
       def execute
         return false if win.focussed_notebook_tab.nil?
         return false if win.focussed_notebook_tab.document.nil?
-        
+
         if !win.isInfraRecordRunning?
           win.startInfraRecord
         end
-                
+
         if win.getIRNotebook.nil?
           createIRNotebook
         elsif win.getIRTab.nil?
@@ -99,80 +99,80 @@ module Redcar
           win.getIRTab().controller_action('index', nil)
         end
       end
-      
+
     end
-    
+
     class Controller
       include HtmlController
 
-      attr_accessor :ir_interface      
+      attr_accessor :ir_interface
 
       def initialize(window)
         @window = window
         @ir_interface = Redcar::InfraRecord::InfraRecordInterface.new
         @current_line = ''
         @variables = {}
-	      @args = {}
+        @args = {}
       end
-      
+
       def document
-        @window.focussed_notebook_tab.document   
+        @window.focussed_notebook_tab.document
       end
-      
+
       def current_line_number
         document.cursor_line + 1
       end
-      
+
       def get_line(line_number=nil)
         line_number = document.cursor_line unless line_number
         document.get_line(line_number)
       end
-            
+
       def title
         "InfraRecord"
       end
-      
+
       def setBinding(name, value)
         @variables[name] = value
         p @variables
       end
-      
+
       def getBinding(name)
-	      @variables[name].to_s
+        @variables[name].to_s
       end
-      
+
       def setArgValue(idx, value)
-	      @args[idx] = value
-	      p @args
+        @args[idx] = value
+        p @args
       end
-      
+
       def update_args_from_bindings(variables_map)
-	      variables_map.keys.each do |idx|
-	        name = variables_map[idx]
-	        setArgValue(idx, getBinding(name))
-	      end
+        variables_map.keys.each do |idx|
+          name = variables_map[idx]
+          setArgValue(idx, getBinding(name))
+        end
       end
-      
+
       def resetArgs
-	      @args = {}
+        @args = {}
       end
-    
+
       def index
         output = '<div id="ormcordion">' + "\n"
         panel_count = -1;
         active_panel_index = -1;
-        
+
         (0..document.line_count).each do |line_number|
           resetArgs
-          
+
           statement = get_line(line_number)
           statement_line_number = (line_number + 1)
-  	      variables_in_call = ir_interface.nonliteral_args_in_call(statement)
-          
+         variables_in_call = ir_interface.nonliteral_args_in_call(statement)
+
           css_class = if statement_line_number == current_line_number
             "current"
           end
-          
+
           next if variables_in_call.nil?
             # no call nodes found
 
@@ -180,10 +180,10 @@ module Redcar
           if statement_line_number == current_line_number
             active_panel_index = panel_count
           end
-          
+
           output += "<h3>Line #{statement_line_number.to_s}</h3>\n"
           output += "<div class=\"#{css_class}\" id=\"line#{statement_line_number.to_s}\">"
-            
+
           if variables_in_call.empty?
             # no variables to be entered by user
             if orm_prediction = ir_interface.predict_orm_call_on_line(statement)
@@ -201,14 +201,14 @@ module Redcar
               name = variables_in_call[key]
               id = i.to_s
               i += 1
-              
+
               string += """
                 <label>#{name}:<name></label>
-                <input 
+                <input
                   type=\"text\"
                   id=\"#{id}\"
                   value=\"#{getBinding(name)}\"
-                  onkeyup=\" 
+                  onkeyup=\"
                     sendBinding('#{name}', event.target.value);
                     sendArgValue('#{id}', event.target.value);
                   \"
@@ -223,7 +223,7 @@ module Redcar
         output += "<script>$('#ormcordion').accordion({collapsible: true, active: #{active_panel_index}});</script>\n"
         #puts output
         output
-        
+
         rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
         rhtml.result(binding)
       end
@@ -237,17 +237,16 @@ module Redcar
         @text.addLineBackgroundListener(LineEventListener.new)
       end
     end
-    
+
     class KeyListener
-      def key_pressed(_); 
+      def key_pressed(_);
       end
 
-      def key_released(e); 
-              
+      def key_released(e);
         if Redcar.app.focussed_window.isInfraRecordRunning?
           InfraRecordCommand.new.execute
         end
-        
+
         if e.stateMask == Swt::SWT::CTRL
           case e.keyCode
             when 100 # 'd'
@@ -255,12 +254,12 @@ module Redcar
           end
         end
       end
-    end  
-    
+    end
+
     class LineEventListener
       def lineGetBackground(_); end
     end
 
   end
-    
+
 end

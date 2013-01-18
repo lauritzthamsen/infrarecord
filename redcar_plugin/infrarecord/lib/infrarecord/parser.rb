@@ -9,37 +9,37 @@ import org.jruby.runtime.ThreadContext;
 
 module Redcar
   class InfraRecord
-    
+
     class Node
       attr_accessor :raw_node, :parent_node
-      
+
       def initialize(jruby_node, parent)
         @raw_node = jruby_node
         @parent_node = parent
       end
-      
+
       def node_type_string
         @raw_node.getNodeType.to_s
       end
-        
+
       def is_const_node?
         node_type_string == "CONSTNODE"
       end
-      
+
       def is_call_node?
         node_type_string == "CALLNODE"
       end
-      
+
       def is_fcall_node?
         node_type_string == "FCALLNODE"
       end
-      
+
       #here be more stuff
-      
+
       def child_nodes
         @raw_node.childNodes.map{ |e| Node.new(e, self)}
       end
-      
+
       def all_child_nodes
         res = [self]
         self.child_nodes.each{ |e|
@@ -47,23 +47,23 @@ module Redcar
         }
         res
       end
-      
+
       def find_const_node
         all_child_nodes.detect { |e|
           e.is_const_node?
         }
       end
-      
+
       def method_missing(name, *args, &block)
         @raw_node.send(name, *args, &block)
       end
-      
+
       def as_sexp
-	SexpMaker.create(raw_node)
+        SexpMaker.create(raw_node)
       end
-      
+
     end
-    
+
     class SyntaxChecker < Redcar::SyntaxCheck::Checker
       supported_grammars "Ruby", "Ruby on Rails", "RSpec"
 
@@ -78,23 +78,23 @@ module Redcar
         rescue SyntaxError => e
           #create_syntax_error(file, e.exception.message, file).annotate
           nil
-        end 
-      end 
+        end
+      end
 
       def create_syntax_error(doc, message, file)
         message  =~ /#{Regexp.escape(file)}:(\d+):(.*)/
-        line     = $1.to_i - 1 
+        line     = $1.to_i - 1
         message  = $2
         Redcar::SyntaxCheck::Error.new(doc, line, message)
-      end 
+      end
 
       def runtime
         org.jruby.Ruby.global_runtime
-      end 
+      end
 
       def parser
         @parser ||= Parser.new(runtime)
-      end 
+      end
 
       def config_19
         @config_19 ||= ParserConfiguration.new(runtime, 0, false, CompatVersion::RUBY1_9)
