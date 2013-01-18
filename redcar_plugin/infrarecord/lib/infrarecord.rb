@@ -220,7 +220,7 @@ module Redcar
           output += "</div>\n"
         end
         output += "</div>\n"
-        output += "<script>$('#ormcordion').accordion({collapsible: true, active: #{active_panel_index}});</script>\n"
+        output += "<script>$('#ormcordion').maccordion({collapsible: true, active: #{active_panel_index}});</script>\n"
         #puts output
         output
 

@@ -5,15 +5,19 @@
 <% jquery          = File.expand_path(File.join(base_path, %w(jquery jquery-1.9.0.min.js))) %>
 <% jqueryui        = File.expand_path(File.join(base_path, %w(jquery jquery-ui-1.10.0.custom.min.js))) %>
 <% jqueryui_css    = File.expand_path(File.join(base_path, %w(jquery css jquery-ui.css))) %>
+<% maccordion      = File.expand_path(File.join(base_path, %w(jquery jquery.dattaya.maccordion.js))) %>
+<% maccordion_css  = File.expand_path(File.join(base_path, %w(jquery css jquery-dattaya-maccordion.css))) %>
 
 
 
 <link rel="stylesheet" href="file://<%= redcar_css %>" type="text/css" media="screen">
 <link rel="stylesheet" href="file://<%= infrarecord_css %>" type="text/css" media="screen">
 <link rel="stylesheet" href="file://<%= jqueryui_css %>" type="text/css" media="screen">
+<link rel="stylesheet" href="file://<%= maccordion_css %>" type="text/css" media="screen">
 
 <script src="file://<%= jquery %>"></script>
 <script src="file://<%= jqueryui %>"></script>
+<script src="file://<%= maccordion %>"></script>
 
 <script>
   sendBinding = function(name, value) {
