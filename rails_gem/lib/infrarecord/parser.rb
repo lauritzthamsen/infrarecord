@@ -35,6 +35,11 @@ class Sexp
     self[3..self.count]
   end
 
+  def method_name
+    return nil if not is_call?
+    return self[2].to_s
+  end
+
   def replace_arg_in_const_call(idx, new_exp)
     res = self.clone
     return res if not has_const_receiver?
@@ -98,6 +103,7 @@ module Infrarecord
     def first_possible_orm_call(a_string, bindings)
       possible_call = parse(a_string).first_const_call
       return nil if possible_call.nil?
+      return nil if possible_call.method_name == "new" # TODO whie-/blacklist?
       @ruby2ruby.process(possible_call.replace_args_with_bindings(bindings))
     end
 

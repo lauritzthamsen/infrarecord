@@ -220,13 +220,21 @@ module Redcar
     end
 
     class KeyListener
+      def initialize
+        @cached_line = ""
+      end
+
       def key_pressed(_);
       end
 
       def key_released(e);
+        doc = Redcar.app.focussed_window.focussed_notebook_tab.document
+        line = doc.get_line(doc.cursor_line)
+        return if @cached_line == line
         if Redcar.app.focussed_window.isInfraRecordRunning?
           InfraRecordCommand.new.execute
         end
+        @cached_line = line
       end
     end
 
