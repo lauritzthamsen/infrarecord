@@ -167,14 +167,14 @@ module Redcar
 
           statement = get_line(line_number)
           statement_line_number = (line_number + 1)
-         variables_in_call = ir_interface.nonliteral_args_in_call(statement)
+          variables_in_call = ir_interface.nonliteral_args_in_call(statement)
 
           css_class = if statement_line_number == current_line_number
             "current"
           end
 
+          # no call nodes found
           next if variables_in_call.nil?
-            # no call nodes found
 
           panel_count += 1
           if statement_line_number == current_line_number
@@ -184,40 +184,20 @@ module Redcar
           output += "<h3>Line #{statement_line_number.to_s}</h3>\n"
           output += "<div class=\"#{css_class}\" id=\"line#{statement_line_number.to_s}\">"
 
-          if variables_in_call.empty?
-            # no variables to be entered by user
-            if orm_prediction = ir_interface.predict_orm_call_on_line(statement)
-              output += """
-                  #{orm_prediction[:query]}<br>
-                  (#{orm_prediction[:rows].count.to_s} rows)
-              """
-            end
-          else
-            # variables to be entered by user
-            update_args_from_bindings(variables_in_call)
-            i = 0
-            output += "<form name=\"variables\">"
-            output += variables_in_call.keys.reduce('') do |string, key|
-              name = variables_in_call[key]
-              id = i.to_s
-              i += 1
-
-              string += """
-                <label>#{name}:<name></label>
-                <input
-                  type=\"text\"
-                  id=\"#{id}\"
-                  value=\"#{getBinding(name)}\"
-                  onkeyup=\"
-                    sendBinding('#{name}', event.target.value);
-                    sendArgValue('#{id}', event.target.value);
-                  \"
-                /><br />
-              """
-            end
-            output += '</form>'
+          # get context
+          context = []
+          i = line_number - 1
+          while i >= 0 && get_line(i).match(/^\s*#IR\s*(.*)/)
+            context << $1
+            i -= 1
           end
-          output += "</div>\n"
+
+          if orm_prediction = ir_interface.predict_orm_call_on_line(statement, context.join("; "))
+            output += """
+                #{orm_prediction[:query]}<br>
+                (#{orm_prediction[:rows].count.to_s} rows)
+            """
+          end
         end
         output += "</div>\n"
         output += "<script>$('#ormcordion').maccordion({collapsible: true, active: #{active_panel_index}});</script>\n"
@@ -253,7 +233,7 @@ module Redcar
     class MouseListener
       def mouseDown(_)
       end
-    
+
       def mouseUp(_)
         if Redcar.app.focussed_window.isInfraRecordRunning?
           InfraRecordCommand.new.execute

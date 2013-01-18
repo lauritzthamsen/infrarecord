@@ -70,21 +70,21 @@ module Redcar
        parent
       end
 
-      def predict_orm_call_on_line(a_string)
+      def predict_orm_call_on_line(a_string, context)
         node = potential_orm_call_node(a_string)
        return if not node
        arg_idxs = nonliteral_args(node)
-       p arg_idxs
-       predict_orm_call(a_string)
+       #p arg_idxs
+       predict_orm_call(a_string, context)
       end
 
-      def predict_orm_call(a_string)
-        params = {'statement' => a_string, # must not unparse!
-                  'bindings' => JSON.unparse({0 => { "name" => "o", "value" => "1337"}})} # must unparse
+      def predict_orm_call(a_string, context)
+        params = {'statement' => a_string,
+                  'context'   => context }
         res = http_post("http://localhost:3000/infrarecord", params)
         res = JSON.parse(res)
-       p "This is the result: "
-       p res
+        #p "This is the result: "
+        #p res
         result_hash = {:rows => res['rows'], :query => res['query']}
         if res['status'] != 'not-found'
           result_hash
