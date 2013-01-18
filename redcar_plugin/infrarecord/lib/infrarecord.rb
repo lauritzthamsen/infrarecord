@@ -234,6 +234,7 @@ module Redcar
       if @text != mate_text.get_text_widget
         @text = mate_text.get_text_widget
         @text.add_key_listener(KeyListener.new)
+        @text.add_mouse_listener(MouseListener.new)
         @text.addLineBackgroundListener(LineEventListener.new)
       end
     end
@@ -252,6 +253,17 @@ module Redcar
             when 100 # 'd'
               puts "do stuff"
           end
+        end
+      end
+    end
+
+    class MouseListener
+      def mouseDown(_)
+      end
+    
+      def mouseUp(_)
+        if Redcar.app.focussed_window.isInfraRecordRunning?
+          InfraRecordCommand.new.execute
         end
       end
     end
