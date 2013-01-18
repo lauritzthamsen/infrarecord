@@ -4,11 +4,13 @@
 <% infrarecord_css = File.expand_path(File.join(base_path, %w(infrarecord.css))) %>
 <% jquery          = File.expand_path(File.join(base_path, %w(jquery jquery-1.9.0.min.js))) %>
 <% jqueryui        = File.expand_path(File.join(base_path, %w(jquery jquery-ui-1.10.0.custom.min.js))) %>
-<% jqueryui_css    = File.expand_path(File.join(base_path, %w(jquery css smoothness jquery-ui-1.10.0.custom.min.css))) %>
+<% jqueryui_css    = File.expand_path(File.join(base_path, %w(jquery css jquery-ui.css))) %>
+
 
 
 <link rel="stylesheet" href="file://<%= redcar_css %>" type="text/css" media="screen">
 <link rel="stylesheet" href="file://<%= infrarecord_css %>" type="text/css" media="screen">
+<link rel="stylesheet" href="file://<%= jqueryui_css %>" type="text/css" media="screen">
 
 <script src="file://<%= jquery %>"></script>
 <script src="file://<%= jqueryui %>"></script>
@@ -25,7 +27,6 @@
 
 
 <style type="text/css">
-    div.current{ border: solid black 1px; }
 </style>
 <div class="top">
   <%= output %>
