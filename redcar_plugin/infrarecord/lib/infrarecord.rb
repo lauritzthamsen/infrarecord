@@ -158,7 +158,9 @@ module Redcar
       end
     
       def index
-        output = ""
+        output = '<div id="ormcordion">' + "\n"
+        panel_count = -1;
+        active_panel_index = -1;
         
         (0..document.line_count).each do |line_number|
           resetArgs
@@ -173,14 +175,19 @@ module Redcar
           
           next if variables_in_call.nil?
             # no call nodes found
+
+          panel_count += 1
+          if statement_line_number == current_line_number
+            active_panel_index = panel_count
+          end
           
-          output += "<div class=\"#{css_class}\" id='#{statement_line_number.to_s}'>"
+          output += "<h3>Line #{statement_line_number.to_s}</h3>\n"
+          output += "<div class=\"#{css_class}\" id=\"line#{statement_line_number.to_s}\">"
             
           if variables_in_call.empty?
             # no variables to be entered by user
             if orm_prediction = ir_interface.predict_orm_call_on_line(statement)
               output += """
-                  ##{statement_line_number.to_s}<br>
                   #{orm_prediction[:query]}<br>
                   (#{orm_prediction[:rows].count.to_s} rows)
               """
@@ -189,7 +196,7 @@ module Redcar
             # variables to be entered by user
             update_args_from_bindings(variables_in_call)
             i = 0
-            output += "<form name='variables'>"
+            output += "<form name=\"variables\">"
             output += variables_in_call.keys.reduce('') do |string, key|
               name = variables_in_call[key]
               id = i.to_s
@@ -210,11 +217,12 @@ module Redcar
             end
             output += '</form>'
           end
-          output += "</div>"
-          output += "<br><br>"
+          output += "</div>\n"
         end
-        
-	      output
+        output += "</div>\n"
+        output += "<script>$('#ormcordion').accordion({collapsible: true, active: #{active_panel_index}});</script>\n"
+        #puts output
+        output
         
         rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
         rhtml.result(binding)
