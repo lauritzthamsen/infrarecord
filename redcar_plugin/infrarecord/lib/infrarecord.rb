@@ -247,13 +247,6 @@ module Redcar
         if Redcar.app.focussed_window.isInfraRecordRunning?
           InfraRecordCommand.new.execute
         end
-
-        if e.stateMask == Swt::SWT::CTRL
-          case e.keyCode
-            when 100 # 'd'
-              puts "do stuff"
-          end
-        end
       end
     end
 
