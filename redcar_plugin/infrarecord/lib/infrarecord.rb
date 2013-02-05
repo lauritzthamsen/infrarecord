@@ -247,6 +247,9 @@ module Redcar
           InfraRecordCommand.new.execute
         end
       end
+
+      def mouseDoubleClick(_)
+      end
     end
 
     class LineEventListener
