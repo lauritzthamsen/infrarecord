@@ -13,7 +13,9 @@ module Infrarecord
       else
         if sql = execute.get_sql(call_with_context(orm_call, c))
           rows = execute.get_query_result(sql)
-          render :text => { status: 'sql', query: sql, rows: rows }.to_json
+          render :text => { status: 'sql', query: sql, 
+                            rows: rows}.to_json
+                            #columns: execute.column_names}.to_json
         else
           render :status => 404, :text => { status: 'not-found' }.to_json
         end

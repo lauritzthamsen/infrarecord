@@ -193,6 +193,7 @@ module Redcar
           end
 
           if orm_prediction = ir_interface.predict_orm_call_on_line(line_number, context.join("; "))
+            p orm_prediction[:rows]
             output += """
                 #{orm_prediction[:query]}<br>
                 (#{orm_prediction[:rows].count.to_s} rows)
