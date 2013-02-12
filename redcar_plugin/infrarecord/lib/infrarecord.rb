@@ -192,7 +192,7 @@ module Redcar
             i -= 1
           end
 
-          if orm_prediction = ir_interface.predict_orm_call_on_line(statement, context.join("; "))
+          if orm_prediction = ir_interface.predict_orm_call_on_line(line_number, context.join("; "))
             output += """
                 #{orm_prediction[:query]}<br>
                 (#{orm_prediction[:rows].count.to_s} rows)

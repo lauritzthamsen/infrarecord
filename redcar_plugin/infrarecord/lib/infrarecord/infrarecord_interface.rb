@@ -11,9 +11,9 @@ module Redcar
 
       attr_reader :controller
       
-      def initialize(owningController)
+      def initialize(owning_controller)
         @parser = Redcar::InfraRecord::SyntaxChecker.new
-        @controller = owningController
+        @controller = owning_controller
       end
 
       def http_get(url)
@@ -60,25 +60,29 @@ module Redcar
       end
 
       def potential_orm_call_node(a_string)
-       node = @parser.check(a_string)
+        node = @parser.check(a_string)
         return nil if node == nil
         const_node = node.find_const_node
         if const_node == nil
           return nil
         end
         parent = const_node.parent_node
-       if not parent.is_call_node?
+        if not parent.is_call_node?
           return nil
         end
-       parent
+        parent
       end
 
-      def predict_orm_call_on_line(a_string, context)
-        node = potential_orm_call_node(a_string)
+      def predict_orm_call_on_line(line_number, context)
+        line = controller.get_line(line_number)
+        node = potential_orm_call_node(line)
+        puts "line number is #{line_number}, line is '#{line}'"
         return if not node
         arg_idxs = nonliteral_args(node)
+        statement = line #FIXME: Parse line, add additional lines 
+                         # if it does not parse correctly
         #p arg_idxs
-        predict_orm_call(a_string, context)
+        predict_orm_call(statement, context)
       end
 
       def predict_orm_call(a_string, context)
