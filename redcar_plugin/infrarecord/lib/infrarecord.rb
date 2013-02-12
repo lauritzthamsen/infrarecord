@@ -181,8 +181,8 @@ module Redcar
             active_panel_index = panel_count
           end
 
-          output += "<h3>Line #{statement_line_number.to_s}</h3>\n"
-          output += "<div class=\"#{css_class}\" id=\"line#{statement_line_number.to_s}\">"
+          output += "<h3 class=\"#{css_class}\">Line #{statement_line_number.to_s}</h3>\n"
+          output += "<div id=\"line#{statement_line_number.to_s}\">"
 
           # get context
           context = []
