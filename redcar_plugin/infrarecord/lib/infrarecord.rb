@@ -156,6 +156,10 @@ module Redcar
       def resetArgs
         @args = {}
       end
+      
+      def scrollDocumentToLine(lineNumber)
+        document.scroll_to_line(lineNumber + 1)
+      end
 
       def index
         output = '<div id="ormcordion">' + "\n"
@@ -182,7 +186,7 @@ module Redcar
           end
 
           output += "<h3 class=\"#{css_class}\">Line #{statement_line_number.to_s}</h3>\n"
-          output += "<div id=\"line#{statement_line_number.to_s}\">"
+          output += "<div class=\"statement\" id=\"line#{statement_line_number.to_s}\">"
 
           # get context
           context = []
@@ -204,8 +208,11 @@ module Redcar
         end
         output += "</div>\n"
         output += "<script>$('#ormcordion').maccordion({collapsible: true, active: #{active_panel_index}});</script>\n"
+        output += "<script>$('#ormcordion').bind('maccordionactivate', function(event, data) {rubyCall('scrollDocumentToLine', parseInt(data.toggled.text().substring('Line '.length)))});</script>"
         puts output
         output
+        
+        
 
         rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
         rhtml.result(binding)
