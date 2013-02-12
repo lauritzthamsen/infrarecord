@@ -53,35 +53,42 @@ module Redcar
        res
       end
 
-      def nonliteral_args_in_call(a_string)
-       node = potential_orm_call_node(a_string)
-       return nil if node == nil
-       return nonliteral_args(node)
+      def nonliteral_args_in_call(line_number)
+        node, statement  = potential_orm_call_node(line_number)
+        return nil if node == nil
+        return nonliteral_args(node)
       end
 
-      def potential_orm_call_node(a_string)
-        node = @parser.check(a_string)
-        return nil if node == nil
+      def potential_orm_call_node(line_number)
+        "Find a potential ORM call on line line_number.
+         If a potential model name is found but the rest of the line does 
+         not parse correctly, look ahead a given number of lines for the statement
+         to complete.
+         Answer a tuple [call_node, statement_containing_the_full_call]."
+        line = controller.get_line(line_number)
+        line_offset = 1
+        statement = line
+        node = nil
+  
+        while node.nil? and line_offset < 10 # FIXME maximum line offset 
+                                             # as config option
+          node = @parser.check(statement)
+          break if node
+          statement += controller.get_line(line_number + line_offset)
+          line_offset += 1
+        end
+        return nil, nil if node.nil?
         const_node = node.find_const_node
-        if const_node == nil
-          return nil
-        end
+        return nil, nil if const_node.nil?
         parent = const_node.parent_node
-        if not parent.is_call_node?
-          return nil
-        end
-        parent
+        return nil if not parent.is_call_node?
+        return [parent, statement]
       end
 
       def predict_orm_call_on_line(line_number, context)
-        line = controller.get_line(line_number)
-        node = potential_orm_call_node(line)
-        puts "line number is #{line_number}, line is '#{line}'"
+        node, statement = potential_orm_call_node(line_number)
         return if not node
         arg_idxs = nonliteral_args(node)
-        statement = line #FIXME: Parse line, add additional lines 
-                         # if it does not parse correctly
-        #p arg_idxs
         predict_orm_call(statement, context)
       end
 

@@ -167,7 +167,7 @@ module Redcar
 
           statement = get_line(line_number)
           statement_line_number = (line_number + 1)
-          variables_in_call = ir_interface.nonliteral_args_in_call(statement)
+          variables_in_call = ir_interface.nonliteral_args_in_call(line_number)
 
           css_class = if statement_line_number == current_line_number
             "current"
