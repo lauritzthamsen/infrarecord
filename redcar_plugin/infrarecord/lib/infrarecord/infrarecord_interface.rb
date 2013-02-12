@@ -53,10 +53,9 @@ module Redcar
        res
       end
 
-      def nonliteral_args_in_call(line_number)
+      def has_potential_orm_call?(line_number)
         node, statement  = potential_orm_call_node(line_number)
-        return nil if node == nil
-        return nonliteral_args(node)
+        return (not node.nil?)
       end
 
       def potential_orm_call_node(line_number)
@@ -81,7 +80,7 @@ module Redcar
         const_node = node.find_const_node
         return nil, nil if const_node.nil?
         parent = const_node.parent_node
-        return nil if not parent.is_call_node?
+        return nil, nil if not parent.is_call_node?
         return [parent, statement]
       end
 

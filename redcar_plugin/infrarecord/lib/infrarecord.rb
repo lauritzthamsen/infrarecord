@@ -140,26 +140,27 @@ module Redcar
 
       
       def scrollDocumentToLine(lineNumber)
+        return unless document
         document.scroll_to_line(lineNumber + 1)
-        if (!document.suppress_highlighting) 
-          document.set_selection_range(
-              document.offset_at_line(lineNumber - 1),
-              document.offset_at_line_end(lineNumber - 1))
-        end
+        # FIXME find a way to suppress highlighting
+        #   this is obviously a problem since the javascript may be
+        #   executed asynchronously. simply setting a flag is not enough.
+        #if (!document.suppress_highlighting) 
+        #  document.set_selection_range(
+        #      document.offset_at_line(lineNumber - 1),
+        #      document.offset_at_line_end(lineNumber - 1))
+        #end
       end
 
       def render_orm_prediction_html(line_number)
         output = ""
         statement = get_line(line_number)
         statement_line_number = (line_number + 1)
-        variables_in_call = ir_interface.nonliteral_args_in_call(line_number)
+        return nil unless ir_interface.has_potential_orm_call?(line_number)
 
         css_class = if statement_line_number == current_line_number
           "current"
         end
-
-          # no call nodes found
-        return nil if variables_in_call.nil?
 
         output += "<h3 class=\"#{css_class}\">Line #{statement_line_number.to_s}</h3>\n"
         output += "<div class=\"statement\" id=\"line#{statement_line_number.to_s}\">"
