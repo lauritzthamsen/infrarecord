@@ -119,8 +119,6 @@ module Redcar
         @window = window
         @ir_interface = Redcar::InfraRecord::InfraRecordInterface.new(self)
         @current_line = ''
-        @variables = {}
-        @args = {}
       end
 
       def document
@@ -140,30 +138,6 @@ module Redcar
         "InfraRecord"
       end
 
-      def setBinding(name, value)
-        @variables[name] = value
-        p @variables
-      end
-
-      def getBinding(name)
-        @variables[name].to_s
-      end
-
-      def setArgValue(idx, value)
-        @args[idx] = value
-        p @args
-      end
-
-      def update_args_from_bindings(variables_map)
-        variables_map.keys.each do |idx|
-          name = variables_map[idx]
-          setArgValue(idx, getBinding(name))
-        end
-      end
-
-      def resetArgs
-        @args = {}
-      end
       
       def scrollDocumentToLine(lineNumber)
         document.scroll_to_line(lineNumber + 1)
@@ -186,8 +160,6 @@ module Redcar
 
           # no call nodes found
         return nil if variables_in_call.nil?
-        
-        
 
         output += "<h3 class=\"#{css_class}\">Line #{statement_line_number.to_s}</h3>\n"
         output += "<div class=\"statement\" id=\"line#{statement_line_number.to_s}\">"
@@ -217,7 +189,6 @@ module Redcar
         active_panel_index = -1;
 
         (0..document.line_count).each do |line_number|
-          resetArgs
           statement_line_number = (line_number + 1)
           prediction_html = render_orm_prediction_html(line_number)
           if (prediction_html)
