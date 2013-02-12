@@ -174,14 +174,28 @@ module Redcar
         end
 
         if orm_prediction = ir_interface.predict_orm_call_on_line(line_number, context.join("; "))
-          p orm_prediction[:rows]
           output += """
               #{orm_prediction[:query]}<br>
-              (#{orm_prediction[:rows].count.to_s} rows)
+              (#{orm_prediction[:rows].count.to_s} rows)<br>
           """
+          output += render_table(orm_prediction[:column_names], orm_prediction[:rows])
         end
         output += "</div>\n"
         output
+      end
+      
+      def render_table(column_names, rows)
+        return "" unless column_names and rows
+        output = "<table><tbody><tr>"
+        output += column_names.reduce('') {|acc, each| acc + "<th>#{each}</th>"}
+        output += "</tr>"
+        output += rows.reduce('') {|acc_rows, each_row|
+          acc_rows + "<tr>" + 
+          each_row.reduce('') {|acc_cells, each_cell| acc_cells + "<td>" + each_cell.to_s + "</td>" } +
+          "</tr>"
+        }
+        p output
+        return output + "</tbody></table>"
       end
       
       def index

@@ -98,7 +98,9 @@ module Redcar
         res = JSON.parse(res)
         p "This is the result: "
         p res
-        result_hash = {:rows => res['rows'], :query => res['query']}
+        result_hash = {:rows => res['rows'], 
+                       :query => res['query'], 
+                       :column_names => res['column_names']}
         if res['status'] != 'not-found'
           result_hash
         else
