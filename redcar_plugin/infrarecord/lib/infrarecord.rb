@@ -6,6 +6,14 @@ require 'infrarecord/infrarecord_interface'
 require 'net/http'
 
 module Redcar
+  
+  class Document
+    
+    @suppress_highlighting = false
+    
+    attr_accessor :suppress_highlighting
+    
+  end
 
   class Window
 
@@ -159,6 +167,11 @@ module Redcar
       
       def scrollDocumentToLine(lineNumber)
         document.scroll_to_line(lineNumber + 1)
+        if (!document.suppress_highlighting) 
+          document.set_selection_range(
+              document.offset_at_line(lineNumber - 1),
+              document.offset_at_line_end(lineNumber - 1))
+        end
       end
 
       def index
@@ -209,12 +222,8 @@ module Redcar
         output += "</div>\n"
         output += "<script>$('#ormcordion').maccordion({collapsible: true, active: #{active_panel_index}});</script>\n"
         output += "<script>$('#ormcordion').bind('maccordionactivate', function(event, data) {rubyCall('scrollDocumentToLine', parseInt(data.toggled.text().substring('Line '.length)))});</script>"
-        puts output
-        output
         
-        
-
-        rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
+        rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))        
         rhtml.result(binding)
       end
 
@@ -239,12 +248,14 @@ module Redcar
 
       def key_released(e);
         doc = Redcar.app.focussed_window.focussed_notebook_tab.document
+        doc.suppress_highlighting = true
         line = doc.get_line(doc.cursor_line)
         return if @cached_line == line
         if Redcar.app.focussed_window.isInfraRecordRunning?
           InfraRecordCommand.new.execute
         end
         @cached_line = line
+        doc.suppress_highlighting = false
       end
     end
 
@@ -253,9 +264,12 @@ module Redcar
       end
 
       def mouseUp(_)
+        doc = Redcar.app.focussed_window.focussed_notebook_tab.document
+        doc.suppress_highlighting = true
         if Redcar.app.focussed_window.isInfraRecordRunning?
           InfraRecordCommand.new.execute
         end
+        doc.suppress_highlighting = false
       end
 
       def mouseDoubleClick(_)
