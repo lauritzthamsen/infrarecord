@@ -174,6 +174,43 @@ module Redcar
         end
       end
 
+      def render_orm_prediction_html(line_number)
+        output = ""
+        statement = get_line(line_number)
+        statement_line_number = (line_number + 1)
+        variables_in_call = ir_interface.nonliteral_args_in_call(line_number)
+
+        css_class = if statement_line_number == current_line_number
+          "current"
+        end
+
+          # no call nodes found
+        return nil if variables_in_call.nil?
+        
+        
+
+        output += "<h3 class=\"#{css_class}\">Line #{statement_line_number.to_s}</h3>\n"
+        output += "<div class=\"statement\" id=\"line#{statement_line_number.to_s}\">"
+
+          # get context
+        context = []
+        i = line_number - 1
+        while i >= 0 && get_line(i).match(/^\s*#IR\s*(.*)/)
+          context << $1
+          i -= 1
+        end
+
+        if orm_prediction = ir_interface.predict_orm_call_on_line(line_number, context.join("; "))
+          p orm_prediction[:rows]
+          output += """
+              #{orm_prediction[:query]}<br>
+              (#{orm_prediction[:rows].count.to_s} rows)
+          """
+        end
+        output += "</div>\n"
+        output
+      end
+      
       def index
         output = '<div id="ormcordion">' + "\n"
         panel_count = -1;
@@ -181,43 +218,16 @@ module Redcar
 
         (0..document.line_count).each do |line_number|
           resetArgs
-
-          statement = get_line(line_number)
           statement_line_number = (line_number + 1)
-          variables_in_call = ir_interface.nonliteral_args_in_call(line_number)
-
-          css_class = if statement_line_number == current_line_number
-            "current"
+          prediction_html = render_orm_prediction_html(line_number)
+          if (prediction_html)
+            panel_count += 1
+            if statement_line_number == current_line_number
+              active_panel_index = panel_count
+            end
+            output += prediction_html
           end
-
-          # no call nodes found
-          next if variables_in_call.nil?
-
-          panel_count += 1
-          if statement_line_number == current_line_number
-            active_panel_index = panel_count
-          end
-
-          output += "<h3 class=\"#{css_class}\">Line #{statement_line_number.to_s}</h3>\n"
-          output += "<div class=\"statement\" id=\"line#{statement_line_number.to_s}\">"
-
-          # get context
-          context = []
-          i = line_number - 1
-          while i >= 0 && get_line(i).match(/^\s*#IR\s*(.*)/)
-            context << $1
-            i -= 1
-          end
-
-          if orm_prediction = ir_interface.predict_orm_call_on_line(line_number, context.join("; "))
-            p orm_prediction[:rows]
-            output += """
-                #{orm_prediction[:query]}<br>
-                (#{orm_prediction[:rows].count.to_s} rows)
-            """
-          end
-          output += "</div>\n"
-          
+        
         end
         output += "</div>\n"
         output += "<script>$('#ormcordion').maccordion({collapsible: true, active: #{active_panel_index}});</script>\n"
