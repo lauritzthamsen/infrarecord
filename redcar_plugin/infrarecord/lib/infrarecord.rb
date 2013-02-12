@@ -198,10 +198,12 @@ module Redcar
                 (#{orm_prediction[:rows].count.to_s} rows)
             """
           end
+          output += "</div>\n"
+          
         end
         output += "</div>\n"
         output += "<script>$('#ormcordion').maccordion({collapsible: true, active: #{active_panel_index}});</script>\n"
-        #puts output
+        puts output
         output
 
         rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
