@@ -109,7 +109,7 @@ module Redcar
 
       def initialize(window)
         @window = window
-        @ir_interface = Redcar::InfraRecord::InfraRecordInterface.new
+        @ir_interface = Redcar::InfraRecord::InfraRecordInterface.new(self)
         @current_line = ''
         @variables = {}
         @args = {}

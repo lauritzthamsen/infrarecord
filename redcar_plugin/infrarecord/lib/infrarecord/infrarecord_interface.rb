@@ -9,8 +9,11 @@ module Redcar
 
     class InfraRecordInterface
 
-      def initialize
+      attr_reader :controller
+      
+      def initialize(owningController)
         @parser = Redcar::InfraRecord::SyntaxChecker.new
+        @controller = owningController
       end
 
       def http_get(url)
@@ -72,10 +75,10 @@ module Redcar
 
       def predict_orm_call_on_line(a_string, context)
         node = potential_orm_call_node(a_string)
-       return if not node
-       arg_idxs = nonliteral_args(node)
-       #p arg_idxs
-       predict_orm_call(a_string, context)
+        return if not node
+        arg_idxs = nonliteral_args(node)
+        #p arg_idxs
+        predict_orm_call(a_string, context)
       end
 
       def predict_orm_call(a_string, context)
