@@ -97,8 +97,8 @@ module Redcar
                   'context'   => context }
         res = http_post("http://localhost:3000/infrarecord", params)
         res = JSON.parse(res)
-        #p "This is the result: "
-        #p res
+        p "This is the result: "
+        p res
         result_hash = {:rows => res['rows'], :query => res['query']}
         if res['status'] != 'not-found'
           result_hash

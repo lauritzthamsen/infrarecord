@@ -1,3 +1,6 @@
+require 'ruby2ruby'
+require 'ruby_parser'
+
 class Sexp
 
   #extensions to Sexp
@@ -38,6 +41,32 @@ class Sexp
   def method_name
     return nil if not is_call?
     return self[2].to_s
+  end
+  
+  def receiver_node
+    # in:  s(:call, s(:const, :Post), :all))
+    # out: s(:const, :Post)
+    return nil if not has_receiver?
+    return self[1]
+  end
+  
+  def innermost_receiver_node
+    # in:  s(:call, s(:call, s(:const, :Post), :all), :empty?)
+    # out: s(:const, :Post)
+    return self if not is_call?
+    receiver = receiver_node
+    if receiver.is_call?
+      return receiver.innermost_receiver_node
+    else 
+      return receiver
+    end
+  end
+  
+  def innermost_receiver_name
+    node = innermost_receiver_node
+    return "" if node.nil?
+    return node[1].to_s if node[1]
+    return ""
   end
 
   def replace_arg_in_const_call(idx, new_exp)
@@ -103,8 +132,8 @@ module Infrarecord
     def first_possible_orm_call(a_string, bindings)
       possible_call = parse(a_string).first_const_call
       return nil if possible_call.nil?
-      return nil if possible_call.method_name == "new" # TODO whie-/blacklist?
-      @ruby2ruby.process(possible_call.replace_args_with_bindings(bindings))
+      return nil if possible_call.method_name == "new" # TODO white-/blacklist?
+      return @ruby2ruby.process(possible_call.replace_args_with_bindings(bindings))
     end
 
   end

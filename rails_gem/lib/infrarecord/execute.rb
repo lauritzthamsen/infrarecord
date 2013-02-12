@@ -7,7 +7,7 @@ module Infrarecord
     def get_query_result(sql_statement)
       ActiveRecord::Base.connection.old_execute(sql_statement)
     end
-
+    
     private
 
     def execute_model_query(statement)

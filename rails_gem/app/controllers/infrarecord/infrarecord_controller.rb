@@ -1,3 +1,5 @@
+require 'ruby2ruby'
+
 module Infrarecord
   class InfrarecordController < ApplicationController
     def statement
@@ -11,11 +13,16 @@ module Infrarecord
       if orm_call == nil
         render :status => 404, :text => { status: 'not-found' }.to_json
       else
+        innermost_receiver = parser.parse(orm_call).innermost_receiver_name
+        column_names = nil
+        column_names = eval(innermost_receiver).column_names if innermost_receiver
         if sql = execute.get_sql(call_with_context(orm_call, c))
           rows = execute.get_query_result(sql)
           render :text => { status: 'sql', query: sql, 
-                            rows: rows}.to_json
-                            #columns: execute.column_names}.to_json
+                            rows: rows,
+                            possible_call: orm_call,
+                            innermost_receiver: innermost_receiver.to_s,
+                            column_names: column_names}.to_json
         else
           render :status => 404, :text => { status: 'not-found' }.to_json
         end
