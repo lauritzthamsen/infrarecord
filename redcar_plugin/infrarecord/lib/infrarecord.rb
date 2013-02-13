@@ -70,7 +70,7 @@ module Redcar
           win.setIRTab(nil)
         end
 
-        # focus necessary to trigger rendering...sucks...
+        # focus necessary to trigger rendering
         tab.focus
       end
 
@@ -159,7 +159,6 @@ module Redcar
         output += "<h3 class=\"#{css_class}\">Line #{statement_line_number.to_s}</h3>\n"
         output += "<div class=\"statement\" id=\"line#{statement_line_number.to_s}\">"
 
-          # get context
         context = []
         i = line_number - 1
         while i >= 0 && get_line(i).match(/^\s*#IR\s*(.*)/)
