@@ -6,14 +6,6 @@ require 'infrarecord/infrarecord_interface'
 require 'net/http'
 
 module Redcar
-  
-  class Document
-    
-    @suppress_highlighting = false
-    
-    attr_accessor :suppress_highlighting
-    
-  end
 
   class Window
 
@@ -138,18 +130,20 @@ module Redcar
         "InfraRecord"
       end
 
-      
       def scrollDocumentToLine(lineNumber)
         return unless document
         document.scroll_to_line(lineNumber + 1)
-        # FIXME find a way to suppress highlighting
-        #   this is obviously a problem since the javascript may be
-        #   executed asynchronously. simply setting a flag is not enough.
-        #if (!document.suppress_highlighting) 
+        
+        # FIXME find a way to scroll and highlight the line iff a query 
+        # got clicked in the IR tab
+        #
+        # this is a problem since the javascript may be executed
+        # asynchronously, simply setting a flag is not enough
+        #
         #  document.set_selection_range(
         #      document.offset_at_line(lineNumber - 1),
         #      document.offset_at_line_end(lineNumber - 1))
-        #end
+        
       end
 
       def render_orm_prediction_html(line_number)
@@ -243,14 +237,12 @@ module Redcar
 
       def key_released(e);
         doc = Redcar.app.focussed_window.focussed_notebook_tab.document
-        doc.suppress_highlighting = true
         line = doc.get_line(doc.cursor_line)
         return if @cached_line == line
         if Redcar.app.focussed_window.isInfraRecordRunning?
           InfraRecordCommand.new.execute
         end
         @cached_line = line
-        doc.suppress_highlighting = false
       end
     end
 
@@ -260,11 +252,9 @@ module Redcar
 
       def mouseUp(_)
         doc = Redcar.app.focussed_window.focussed_notebook_tab.document
-        doc.suppress_highlighting = true
         if Redcar.app.focussed_window.isInfraRecordRunning?
           InfraRecordCommand.new.execute
         end
-        doc.suppress_highlighting = false
       end
 
       def mouseDoubleClick(_)
