@@ -130,20 +130,12 @@ module Redcar
         "InfraRecord"
       end
 
-      def scrollDocumentToLine(lineNumber)
+      def presentLineInDocument(lineNumber)
         return unless document
         document.scroll_to_line(lineNumber + 1)
-        
-        # FIXME find a way to scroll and highlight the line iff a query 
-        # got clicked in the IR tab
-        #
-        # this is a problem since the javascript may be executed
-        # asynchronously, simply setting a flag is not enough
-        #
-        #  document.set_selection_range(
-        #      document.offset_at_line(lineNumber - 1),
-        #      document.offset_at_line_end(lineNumber - 1))
-        
+        document.set_selection_range(
+           document.offset_at_line(lineNumber - 1),
+           document.offset_at_line_end(lineNumber - 1))
       end
 
       def render_orm_prediction_html(line_number)
