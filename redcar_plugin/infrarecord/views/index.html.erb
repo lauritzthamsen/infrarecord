@@ -8,8 +8,6 @@
 <% maccordion      = File.expand_path(File.join(base_path, %w(jquery jquery.dattaya.maccordion.js))) %>
 <% maccordion_css  = File.expand_path(File.join(base_path, %w(jquery css jquery-dattaya-maccordion.css))) %>
 
-
-
 <link rel="stylesheet" href="file://<%= redcar_css %>" type="text/css" media="screen">
 <link rel="stylesheet" href="file://<%= infrarecord_css %>" type="text/css" media="screen">
 <link rel="stylesheet" href="file://<%= jqueryui_css %>" type="text/css" media="screen">
@@ -23,9 +21,19 @@
 </style>
 <div class="top">
   <%= output %>
+  <script>$('#ormcordion').maccordion({collapsible: true, active: #{active_panel_index}});</script>
 </div>
 
 <script>
-  document.getElementsByClassName('current')[0].scrollIntoView()
+  $('.current')[0].scrollIntoView();
+  
+  // maccordion-view of queries, https://github.com/Dattaya/Maccordion
+  $('#ormcordion').bind('maccordionactivate', function(event, data) {
+    var toggledItemName = data.toggled.text(),
+        line = parseInt(toggledItemName.substring('Line '.length));
+    rubyCall('scrollDocumentToLine', line);
+  });
 </script>
+
+
 

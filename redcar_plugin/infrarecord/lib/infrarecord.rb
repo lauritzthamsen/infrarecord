@@ -217,7 +217,6 @@ module Redcar
         end
         output += "</div>\n"
         output += "<script>$('#ormcordion').maccordion({collapsible: true, active: #{active_panel_index}});</script>\n"
-        output += "<script>$('#ormcordion').bind('maccordionactivate', function(event, data) {rubyCall('scrollDocumentToLine', parseInt(data.toggled.text().substring('Line '.length)))});</script>"
         
         rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))        
         rhtml.result(binding)
