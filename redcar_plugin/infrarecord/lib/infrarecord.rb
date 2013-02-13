@@ -6,6 +6,17 @@ require 'infrarecord/infrarecord_interface'
 require 'net/http'
 
 module Redcar
+  
+  class Document
+    
+    def present_line(line_number)
+      scroll_to_line(line_number + 1)
+      set_selection_range(
+         offset_at_line(line_number - 1),
+         offset_at_line_end(line_number - 1))
+    end
+    
+  end
 
   class Window
 
@@ -130,12 +141,9 @@ module Redcar
         "InfraRecord"
       end
 
-      def presentLineInDocument(lineNumber)
+      def present_line_in_document(lineNumber)
         return unless document
-        document.scroll_to_line(lineNumber + 1)
-        document.set_selection_range(
-           document.offset_at_line(lineNumber - 1),
-           document.offset_at_line_end(lineNumber - 1))
+        document.present_line(lineNumber)
       end
 
       def render_orm_prediction_html(line_number)
