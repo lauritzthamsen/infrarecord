@@ -40,13 +40,43 @@ var build_table = function(column_names, rows) {
   return table;
 }
 
+var build_query_entry = function(line_number, class, orm_prediction) {
+  $('#ormcordion').append(
+      "<h3 class=\"" + class + "\">Line" + line_number + ": " + orm_prediction.model + "</h3>"  );
+
+  var id = "line" + line_number;
+  var statement = $("<div class=\"statement\" id=\"" + id + "\"></div>");
+
+  statement.html(
+    orm_prediction.query + "<br>(" + orm_prediction.rows + " rows)");
+
+  $('#ormcordion').append(statement);
+  $('#ormcordion').append(build_table(orm_prediction.column_names, orm_prediction.rows));
+
+}
+
 // Data
+
+$('#ormcordion').html("");
 
 var column_names = JSON.parse("<%= column_names.to_s %>");
 var rows = JSON.parse("<%= rows %>");
-$('#ormcordion').append(build_table(column_names, rows));
+//$('#ormcordion').append(build_table(column_names, rows));
+
+var predictions =
+  [ 1, {
+    model: 'Post',
+    query: "Select * from Posts",
+    rows: 10,
+    column_names: ["a", "b", "c" ],
+    rows: [ [1,2,3], [4,5,6] ]
+  } ];
+
+build_query_entry(predictions[0], null, predictions[1]);
 
 $('#ormcordion').maccordion({
   collapsible: true,
   active: <%= 0 || active_panel_index%>
 });
+
+activateOrmcordion();

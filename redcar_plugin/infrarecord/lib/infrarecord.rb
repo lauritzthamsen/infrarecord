@@ -174,8 +174,8 @@ module Redcar
         return "" if not orm_prediction
 
         css_class = if statement_line_number == current_line_number
-          "current"
-        end
+                      "current"
+                    end
         output = ""
         output += "<h3 class=\"#{css_class}\">Line #{statement_line_number.to_s}: #{orm_prediction[:model]}</h3>\n"
         output += "<div class=\"statement\" id=\"line#{statement_line_number.to_s}\">"
