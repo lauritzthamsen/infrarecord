@@ -6,16 +6,16 @@ require 'infrarecord/infrarecord_interface'
 require 'net/http'
 
 module Redcar
-  
+
   class Document
-    
+
     def present_line(line_number)
       scroll_to_line(line_number + 1)
       set_selection_range(
          offset_at_line(line_number - 1),
          offset_at_line_end(line_number - 1))
     end
-    
+
   end
 
   class Window
@@ -50,6 +50,13 @@ module Redcar
       end
     end
 
+    def ensureHTML
+      if !@HTMLinitialized && self.getIRTab
+        self.getIRTab.controller_action("index", nil)
+
+        @HTMLinitialized = true
+      end
+    end
   end
 
   class InfraRecord
@@ -102,12 +109,14 @@ module Redcar
           win.startInfraRecord
         end
 
+        win.ensureHTML
+
         if win.getIRNotebook.nil?
           createIRNotebook
         elsif win.getIRTab.nil?
           createIRTabInNotebook(win.getIRNotebook)
         else
-          win.getIRTab().controller_action('index', nil)
+          win.getIRTab.html_view.controller.update
         end
       end
 
@@ -147,7 +156,7 @@ module Redcar
       end
 
       def render_orm_prediction_html(line_number)
-        
+
         statement = get_line(line_number)
         statement_line_number = (line_number + 1)
         return nil unless ir_interface.has_potential_orm_call?(line_number)
@@ -158,11 +167,11 @@ module Redcar
           context << $1
           i -= 1
         end
-        
+
         orm_prediction = ir_interface.predict_orm_call_on_line(line_number, context.join("; "))
 
         return "" if not orm_prediction
-        
+
         css_class = if statement_line_number == current_line_number
           "current"
         end
@@ -177,23 +186,27 @@ module Redcar
         output += "</div>\n"
         output
       end
-      
+
       def render_table(column_names, rows)
         return "" unless column_names and rows
         output = "<table><tbody><tr>"
         output += column_names.reduce('') {|acc, each| acc + "<th>#{each}</th>"}
         output += "</tr>"
         output += rows.reduce('') {|acc_rows, each_row|
-          acc_rows + "<tr>" + 
+          acc_rows + "<tr>" +
           each_row.reduce('') {|acc_cells, each_cell| acc_cells + "<td>" + each_cell.to_s + "</td>" } +
           "</tr>"
         }
         p output
         return output + "</tbody></table>"
       end
-      
+
       def index
-        output = '<div id="ormcordion">' + "\n"
+        rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
+        rhtml.result(binding)
+      end
+
+      def get_orm_predictions
         panel_count = -1;
         active_panel_index = -1;
 
@@ -207,15 +220,19 @@ module Redcar
             end
             output += prediction_html
           end
-        
+
         end
-        output += "</div>\n"
-        output += "<script>$('#ormcordion').maccordion({collapsible: true, active: #{active_panel_index}});</script>\n"
-        
-        rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))        
-        rhtml.result(binding)
+
       end
 
+      def update
+        self.execute(update_js)
+      end
+
+      def update_js
+        js = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "update.js.erb")))
+        js.result(binding)
+      end
     end
 
     def self.edit_view_gui_update(mate_text)

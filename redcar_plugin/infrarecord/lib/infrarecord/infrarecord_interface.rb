@@ -7,13 +7,32 @@ module Redcar
 
   class InfraRecord
 
+    class Cache
+      def initialize
+        @cache = {}
+      end
+
+      def get(data)
+        puts "Getting cache for #{data}"
+        @cache[data]
+      end
+
+      def set(data, body)
+        puts "Setting cache for #{data}"
+        @cache[data] = body
+
+        body
+      end
+    end
+
     class InfraRecordInterface
 
       attr_reader :controller
-      
+
       def initialize(owning_controller)
         @parser = Redcar::InfraRecord::SyntaxChecker.new
         @controller = owning_controller
+        @cache = Cache.new
       end
 
       def http_get(url)
@@ -26,7 +45,11 @@ module Redcar
       end
 
       def http_post(url, data)
-        return Net::HTTP.post_form(URI.parse(url), data).body
+        if cached = @cache.get(data)
+          cached
+        else
+          @cache.set(data, Net::HTTP.post_form(URI.parse(url), data).body)
+        end
       end
 
       def nonliteral_args(a_call_node)
@@ -60,7 +83,7 @@ module Redcar
 
       def potential_orm_call_node(line_number)
         "Find a potential ORM call on line line_number.
-         If a potential model name is found but the rest of the line does 
+         If a potential model name is found but the rest of the line does
          not parse correctly, look ahead a given number of lines for the statement
          to complete.
          Answer a tuple [call_node, statement_containing_the_full_call]."
@@ -68,8 +91,8 @@ module Redcar
         line_offset = 1
         statement = line
         node = nil
-  
-        while node.nil? and line_offset < 10 # FIXME maximum line offset 
+
+        while node.nil? and line_offset < 10 # FIXME maximum line offset
                                              # as config option
           node = @parser.check(statement)
           break if node
@@ -98,8 +121,8 @@ module Redcar
         res = JSON.parse(res)
         p "This is the result: "
         p res
-        result_hash = {:rows => res['rows'], 
-                       :query => res['query'], 
+        result_hash = {:rows => res['rows'],
+                       :query => res['query'],
                        :column_names => res['column_names'],
                        :model => res['model']}
         if res['status'] != 'not-found'
