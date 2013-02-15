@@ -26,21 +26,3 @@
   <div id="templates" style="block: hidden">
   </div>
 </div>
-
-<script>
-  var activateOrmcordion = function() {
-    $('.current')[0].scrollIntoView();
-    
-    // maccordion-view of queries, https://github.com/Dattaya/Maccordion
-    $('#ormcordion').bind('maccordionactivate', function(event, data) {
-      if (event.shiftKey) {
-        var toggledItemName = data.toggled.text(),
-            line = parseInt(toggledItemName.substring('Line '.length));
-        rubyCall('present_line_in_document', line);
-      }
-    });
-  };
-</script>
-
-
-

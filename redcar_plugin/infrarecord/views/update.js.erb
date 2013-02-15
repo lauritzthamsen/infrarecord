@@ -1,6 +1,52 @@
-alert("test from update.js");
+// Functions
+
+var activateOrmcordion = function() {
+  $('.current')[0].scrollIntoView();
+
+  // maccordion-view of queries, https://github.com/Dattaya/Maccordion
+  $('#ormcordion').bind('maccordionactivate', function(event, data) {
+    if (event.shiftKey) {
+      var toggledItemName = data.toggled.text(),
+          line = parseInt(toggledItemName.substring('Line '.length));
+      rubyCall('present_line_in_document', line);
+    }
+  });
+};
+
+// how to use build_table:
+//
+// var names = [ "a", "b", "c"];
+// var rows = [ [ 1, 2, 3 ], [1,2,3] ];
+// $('#ormcordion').append(build_table(names, rows));
+//
+var build_table = function(column_names, rows) {
+  table = $("<table><tbody><tr>");
+
+  // build column name header
+  var tr = table.find("tr");
+  $(column_names).each(function(index, name) {
+    tr.append("<th>" + name + "</th>");
+  });
+
+  // build rows
+  $(rows).each(function(index, row_cells) {
+    var tr = table.find("tbody").append("<tr>");
+
+    $(row_cells).each(function(cell) {
+      tr.append("<td>" + cell + "</td>");
+    });
+  })
+
+  return table;
+}
+
+// Data
+
+var column_names = JSON.parse("<%= column_names.to_s %>");
+var rows = JSON.parse("<%= rows %>");
+$('#ormcordion').append(build_table(column_names, rows));
 
 $('#ormcordion').maccordion({
   collapsible: true,
-  active: <%= true || active_panel_index %>
+  active: <%= 0 || active_panel_index%>
 });

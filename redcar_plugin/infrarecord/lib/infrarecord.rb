@@ -4,6 +4,7 @@ require 'cgi'
 require 'infrarecord/parser'
 require 'infrarecord/infrarecord_interface'
 require 'net/http'
+require 'json'
 
 module Redcar
 
@@ -187,20 +188,6 @@ module Redcar
         output
       end
 
-      def render_table(column_names, rows)
-        return "" unless column_names and rows
-        output = "<table><tbody><tr>"
-        output += column_names.reduce('') {|acc, each| acc + "<th>#{each}</th>"}
-        output += "</tr>"
-        output += rows.reduce('') {|acc_rows, each_row|
-          acc_rows + "<tr>" +
-          each_row.reduce('') {|acc_cells, each_cell| acc_cells + "<td>" + each_cell.to_s + "</td>" } +
-          "</tr>"
-        }
-        p output
-        return output + "</tbody></table>"
-      end
-
       def index
         rhtml = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "index.html.erb")))
         rhtml.result(binding)
@@ -230,6 +217,9 @@ module Redcar
       end
 
       def update_js
+        column_names = [ "a", "b", "d"].to_json.gsub('"', %q(\\\"))
+        rows = [ [ 1, 2, 3 ], [1,2,3] ].to_json.gsub('"', %q(\\\"))
+
         js = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "update.js.erb")))
         js.result(binding)
       end
