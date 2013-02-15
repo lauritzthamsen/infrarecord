@@ -21,7 +21,7 @@ module Infrarecord
           render :text => { status: 'sql', query: sql, 
                             rows: rows,
                             possible_call: orm_call,
-                            innermost_receiver: innermost_receiver.to_s,
+                            model: innermost_receiver.to_s,
                             column_names: column_names}.to_json
         else
           render :status => 404, :text => { status: 'not-found' }.to_json

@@ -100,7 +100,8 @@ module Redcar
         p res
         result_hash = {:rows => res['rows'], 
                        :query => res['query'], 
-                       :column_names => res['column_names']}
+                       :column_names => res['column_names'],
+                       :model => res['model']}
         if res['status'] != 'not-found'
           result_hash
         else
