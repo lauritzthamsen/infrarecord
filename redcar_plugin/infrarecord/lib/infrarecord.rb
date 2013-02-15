@@ -161,20 +161,19 @@ module Redcar
         
         orm_prediction = ir_interface.predict_orm_call_on_line(line_number, context.join("; "))
 
+        return "" if not orm_prediction
+        
         css_class = if statement_line_number == current_line_number
           "current"
         end
         output = ""
         output += "<h3 class=\"#{css_class}\">Line #{statement_line_number.to_s}: #{orm_prediction[:model]}</h3>\n"
         output += "<div class=\"statement\" id=\"line#{statement_line_number.to_s}\">"
-        
-        if orm_prediction
-          output += """
-              #{orm_prediction[:query]}<br>
-              (#{orm_prediction[:rows].count.to_s} rows)<br>
+        output += """
+          #{orm_prediction[:query]}<br>
+          (#{orm_prediction[:rows].count.to_s} rows)<br>
           """
-          output += render_table(orm_prediction[:column_names], orm_prediction[:rows])
-        end
+        output += render_table(orm_prediction[:column_names], orm_prediction[:rows])
         output += "</div>\n"
         output
       end
