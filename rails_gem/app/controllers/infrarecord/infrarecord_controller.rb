@@ -18,14 +18,17 @@ module Infrarecord
 
         begin
           column_names = eval(innermost_receiver).column_names if innermost_receiver
-
           if sql = execute.get_sql(call_with_context(orm_call, c))
+            start_time = Time.now
             rows = execute.get_query_result(sql)
-            render :text => { status: 'sql', query: sql,
+            end_time = Time.now
+            render :text => { status: 'sql',
+                              query: sql,
                               rows: rows,
                               possible_call: orm_call,
                               model: innermost_receiver.to_s,
-                              column_names: column_names}.to_json
+                              column_names: column_names,
+                              runtime: end_time - start_time}.to_json
           else
             render :status => 404, :text => { status: 'not-found' }.to_json
           end

@@ -52,30 +52,6 @@ module Redcar
         end
       end
 
-      def nonliteral_args(a_call_node)
-       i = 0
-       res = {}
-       args_node = a_call_node.args_node
-       if a_call_node.args_node.respond_to?(:child_nodes)
-         args_node.child_nodes.each do |node|
-           if node.respond_to?(:get_name)
-             tmp_node = Node.new(node, nil)
-             if tmp_node.is_call_node?
-                res[i] = node.getReceiverNode().getName() + "." + node.get_name + "()"
-             elsif tmp_node.is_fcall_node?
-                res[i] = node.getName() + "()"
-             else
-                res[i] = node.get_name
-             end
-           end
-           i += 1
-         end
-       else
-         []
-       end
-       res
-      end
-
       def has_potential_orm_call?(line_number)
         node, statement  = potential_orm_call_node(line_number)
         return (not node.nil?)
@@ -110,7 +86,6 @@ module Redcar
       def predict_orm_call_on_line(line_number, context)
         node, statement = potential_orm_call_node(line_number)
         return if not node
-        arg_idxs = nonliteral_args(node)
         predict_orm_call(statement, context)
       end
 
@@ -130,7 +105,8 @@ module Redcar
         result_hash = {:rows => res['rows'],
                        :query => res['query'],
                        :column_names => res['column_names'],
-                       :model => res['model']}
+                       :model => res['model'],
+                       :runtime => res['runtime']}
         if res['status'] != 'not-found'
           result_hash
         else
