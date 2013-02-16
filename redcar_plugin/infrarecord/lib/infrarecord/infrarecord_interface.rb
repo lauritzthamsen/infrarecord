@@ -118,7 +118,13 @@ module Redcar
         params = {'statement' => a_string,
                   'context'   => context }
         res = http_post("http://localhost:3000/infrarecord", params)
-        res = JSON.parse(res)
+
+        begin
+          res = JSON.parse(res)
+        rescue JSON::ParserError
+          res = { 'status' => 'not-found' }
+        end
+
         p "This is the result: "
         p res
         result_hash = {:rows => res['rows'],

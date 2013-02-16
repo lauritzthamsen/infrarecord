@@ -74,9 +74,20 @@ module Redcar
     end
 
     class InfraRecordCommand < Redcar::Command
+      COOLDOWN_TRESHOLD = 1
 
       def initialize
         @win = Redcar.app.focussed_window
+        @cooldown = Time.now.to_f
+      end
+
+      def cooldown
+        if (@cooldown + COOLDOWN_TRESHOLD) > Time.now.to_f
+          return true
+        else
+          @cooldown = Time.now.to_f
+          return false
+        end
       end
 
       def createIRTabInNotebook(notebook)
@@ -103,6 +114,7 @@ module Redcar
       end
 
       def execute
+        #return false if cooldown
         return false if win.focussed_notebook_tab.nil?
         return false if win.focussed_notebook_tab.document.nil?
 
@@ -156,7 +168,7 @@ module Redcar
         document.present_line(lineNumber)
       end
 
-      def render_orm_prediction_html(line_number)
+      def get_orm_prediction(line_number)
 
         statement = get_line(line_number)
         statement_line_number = (line_number + 1)
@@ -171,21 +183,11 @@ module Redcar
 
         orm_prediction = ir_interface.predict_orm_call_on_line(line_number, context.join("; "))
 
-        return "" if not orm_prediction
+        return nil unless orm_prediction
 
-        css_class = if statement_line_number == current_line_number
-                      "current"
-                    end
-        output = ""
-        output += "<h3 class=\"#{css_class}\">Line #{statement_line_number.to_s}: #{orm_prediction[:model]}</h3>\n"
-        output += "<div class=\"statement\" id=\"line#{statement_line_number.to_s}\">"
-        output += """
-          #{orm_prediction[:query]}<br>
-          (#{orm_prediction[:rows].count.to_s} rows)<br>
-          """
-        output += render_table(orm_prediction[:column_names], orm_prediction[:rows])
-        output += "</div>\n"
-        output
+        orm_prediction['line_number'] = statement_line_number
+        orm_prediction['css_class']   = statement_line_number == current_line_number ? "current" : nil
+        orm_prediction
       end
 
       def index
@@ -197,19 +199,20 @@ module Redcar
         panel_count = -1;
         active_panel_index = -1;
 
+        predictions = []
+
         (0..document.line_count).each do |line_number|
-          statement_line_number = (line_number + 1)
-          prediction_html = render_orm_prediction_html(line_number)
-          if (prediction_html)
+          prediction = get_orm_prediction(line_number)
+          if prediction
             panel_count += 1
-            if statement_line_number == current_line_number
+            if (line_number + 1) == current_line_number
               active_panel_index = panel_count
             end
-            output += prediction_html
+            predictions << prediction
           end
-
         end
 
+        [ predictions, active_panel_index ]
       end
 
       def update
@@ -217,11 +220,18 @@ module Redcar
       end
 
       def update_js
-        column_names = [ "a", "b", "d"].to_json.gsub('"', %q(\\\"))
-        rows = [ [ 1, 2, 3 ], [1,2,3] ].to_json.gsub('"', %q(\\\"))
+        orm_predictions = get_orm_predictions
+        predictions = jsonify(orm_predictions[0])
+        active_panel_index = orm_predictions[1]
+
+        puts predictions
 
         js = ERB.new(File.read(File.join(File.dirname(__FILE__), "..", "views", "update.js.erb")))
         js.result(binding)
+      end
+
+      def jsonify(object)
+        object.to_json.gsub('"', %q(\\\"))
       end
     end
 
