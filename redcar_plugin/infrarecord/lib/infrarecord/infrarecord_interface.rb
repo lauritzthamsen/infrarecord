@@ -47,6 +47,8 @@ module Redcar
   
         while node.nil? and line_offset < 10 # FIXME maximum line offset 
                                              # as config option
+          break if statement.match(/^\s*(class|def|module)\s+/)
+                                             # don't parse class and method defs to the end
           node = @parser.check(statement)
           break if node
           statement += controller.get_line(line_number + line_offset)
