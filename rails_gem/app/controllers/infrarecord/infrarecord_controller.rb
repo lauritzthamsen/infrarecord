@@ -9,7 +9,6 @@ module Infrarecord
       p "Context is '#{c}'"
 
       orm_call = parser.first_possible_orm_call(s, {})
-      p orm_call
       if orm_call == nil
         render :status => 404, :text => { status: 'not-found' }.to_json
       else

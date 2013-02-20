@@ -5,6 +5,8 @@ class Sexp
 
   #extensions to Sexp
 
+  attr_accessor :parent
+  
   def is_call?
     count > 2 and self[0] == :call
   end
@@ -97,9 +99,16 @@ class Sexp
 
   def all_const_calls
     res = []
-    res << self.clone if has_const_receiver?
+    if has_const_receiver?
+      outermost_call_node = self
+      while outermost_call_node.parent && outermost_call_node.parent.is_call?
+        outermost_call_node = outermost_call_node.parent
+      end
+      res << outermost_call_node.clone
+    end
     self.each do |e|
       if e.class == Sexp
+        e.parent = self
         res.concat(e.all_const_calls)
       end
     end
