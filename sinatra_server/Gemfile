@@ -1,5 +1,0 @@
-source :rubygems
-
-gem "sinatra", :require => "sinatra/base"
-gem "ruby_parser"
-gem "ruby2ruby"
